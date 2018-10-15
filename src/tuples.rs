@@ -23,6 +23,22 @@ impl Tuple {
         Tuple::new(x, y, z, 0.0)
     }
 
+    pub fn color(red: f32, green: f32, blue: f32) -> Self {
+        Tuple::new(red, green, blue, 0.0)
+    }
+
+    pub fn red(&self) -> f32 {
+        self.x
+    }
+
+    pub fn green(&self) -> f32 {
+        self.y
+    }
+
+    pub fn blue(&self) -> f32 {
+        self.z
+    }
+
     pub fn is_point(&self) -> bool {
         self.w == 1.0
     }
@@ -94,6 +110,14 @@ fn test_point_factory() {
 fn test_vector_factory() {
     let v = Tuple::vector(4.0, -4.0, 3.0);
     assert_eq!(v, Tuple::new(4.0, -4.0, 3.0, 0.0));
+}
+
+#[test]
+fn test_new_color() {
+    let color = Tuple::color(-0.5, 0.4, 1.7);
+    assert_eq!(color.red(), -0.5);
+    assert_eq!(color.green(), 0.4);
+    assert_eq!(color.blue(), 1.7);
 }
 
 #[test]
@@ -178,6 +202,13 @@ fn test_adding_two_tuples() {
     assert_eq!(a1 + a2, Tuple::new(1.0, 1.0, 6.0, 1.0));
 }
 
+#[test]
+fn test_adding_colors() {
+    let c1 = Tuple::color(0.9, 0.6, 0.75);
+    let c2 = Tuple::color(0.7, 0.1, 0.25);
+    assert_eq!(c1 + c2, Tuple::color(1.6, 0.7, 1.0));
+}
+
 impl ops::Sub for Tuple {
     type Output = Tuple;
 
@@ -217,6 +248,13 @@ fn test_subtracting_a_vector_from_the_zero_vector() {
     let zero = Tuple::vector(0.0, 0.0, 0.0);
     let v = Tuple::vector(1.0, -2.0, 3.0);
     assert_eq!(zero - v, Tuple::vector(-1.0, 2.0, -3.0));
+}
+
+#[test]
+fn test_subtracting_colors() {
+    let c1 = Tuple::color(0.9, 0.6, 0.75);
+    let c2 = Tuple::color(0.7, 0.1, 0.25);
+    assert_eq!(c1 - c2, Tuple::color(0.2, 0.5, 0.5))
 }
 
 impl ops::Neg for Tuple {
@@ -261,6 +299,32 @@ fn test_multiplying_a_tuple_by_a_scalar() {
 fn test_multiplying_a_tuple_by_a_fraction() {
     let a = Tuple::new(1.0, -2.0, 3.0, -4.0);
     assert_eq!(a * 0.5, Tuple::new(0.5, -1.0, 1.5, -2.0));
+}
+
+#[test]
+fn test_multiplying_a_color_by_a_scalar() {
+    let c = Tuple::color(0.2, 0.3, 0.4);
+    assert_eq!(c * 2.0, Tuple::color(0.4, 0.6, 0.8));
+}
+
+impl ops::Mul for Tuple {
+    type Output = Tuple;
+
+    fn mul(self, other: Tuple) -> Tuple {
+        Tuple {
+            x: self.x * other.x,
+            y: self.y * other.y,
+            z: self.z * other.z,
+            w: self.w * other.w,
+        }
+    }
+}
+
+#[test]
+fn test_multiplying_colors() {
+    let c1 = Tuple::color(1.0, 0.2, 0.4);
+    let c2 = Tuple::color(0.9, 1.0, 0.1);
+    assert_eq!(c1 * c2, Tuple::color(0.9, 0.2, 0.04));
 }
 
 impl ops::Div<f32> for Tuple {
