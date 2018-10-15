@@ -1,0 +1,6 @@
+[package]
+name = "ray-tracer-challenge"
+version = "0.1.0"
+authors = ["William Roe <git@wjlr.org.uk>"]
+
+[dependencies]
