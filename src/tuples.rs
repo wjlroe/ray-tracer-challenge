@@ -1,6 +1,8 @@
 use std::ops;
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+const EPSILON: f32 = 0.00001;
+
+#[derive(Copy, Clone, Debug)]
 pub struct Tuple {
     pub x: f32,
     pub y: f32,
@@ -27,6 +29,21 @@ impl Tuple {
 
     pub fn is_vector(&self) -> bool {
         self.w == 0.0
+    }
+
+    pub fn magnitude(&self) -> f32 {
+        (self.x.powi(2) + self.y.powi(2) + self.z.powi(2) + self.w.powi(2))
+            .sqrt()
+    }
+
+    pub fn normalize(&self) -> Tuple {
+        let magnitude = self.magnitude();
+        Tuple {
+            x: self.x / magnitude,
+            y: self.y / magnitude,
+            z: self.z / magnitude,
+            w: self.w / magnitude,
+        }
     }
 }
 
@@ -62,6 +79,53 @@ fn test_point_factory() {
 fn test_vector_factory() {
     let v = Tuple::vector(4.0, -4.0, 3.0);
     assert_eq!(v, Tuple::new(4.0, -4.0, 3.0, 0.0));
+}
+
+#[test]
+fn test_magnitude_of_vectors() {
+    {
+        let v = Tuple::vector(1.0, 0.0, 0.0);
+        assert_eq!(v.magnitude(), 1.0);
+    }
+
+    {
+        let v = Tuple::vector(0.0, 1.0, 0.0);
+        assert_eq!(v.magnitude(), 1.0);
+    }
+
+    {
+        let v = Tuple::vector(0.0, 0.0, 1.0);
+        assert_eq!(v.magnitude(), 1.0);
+    }
+
+    {
+        let v = Tuple::vector(1.0, 2.0, 3.0);
+        assert_eq!(v.magnitude(), 14f32.sqrt());
+    }
+
+    {
+        let v = Tuple::vector(-1.0, -2.0, -3.0);
+        assert_eq!(v.magnitude(), 14f32.sqrt());
+    }
+}
+
+#[test]
+fn test_normalizing_vectors() {
+    {
+        let v = Tuple::vector(4.0, 0.0, 0.0);
+        assert_eq!(v.normalize(), Tuple::vector(1.0, 0.0, 0.0));
+    }
+
+    {
+        let v = Tuple::vector(1.0, 2.0, 3.0);
+        assert_eq!(v.normalize(), Tuple::vector(0.26726, 0.53452, 0.80178));
+    }
+
+    {
+        let v = Tuple::vector(1.0, 2.0, 3.0);
+        let norm = v.normalize();
+        assert!((norm.magnitude() - 1.0).abs() < EPSILON);
+    }
 }
 
 impl ops::Add for Tuple {
@@ -186,4 +250,13 @@ impl ops::Div<f32> for Tuple {
 fn test_dividing_a_tuple_by_a_scalar() {
     let a = Tuple::new(1.0, -2.0, 3.0, -4.0);
     assert_eq!(a / 2.0, Tuple::new(0.5, -1.0, 1.5, -2.0));
+}
+
+impl PartialEq for Tuple {
+    fn eq(&self, other: &Tuple) -> bool {
+        (self.x - other.x).abs() < EPSILON
+            && (self.y - other.y).abs() < EPSILON
+            && (self.z - other.z).abs() < EPSILON
+            && (self.w - other.w).abs() < EPSILON
+    }
 }
