@@ -56,6 +56,19 @@ impl ops::Sub for Tuple {
     }
 }
 
+impl ops::Neg for Tuple {
+    type Output = Tuple;
+
+    fn neg(self) -> Tuple {
+        Tuple {
+            x: -self.x,
+            y: -self.y,
+            z: -self.z,
+            w: -self.w,
+        }
+    }
+}
+
 #[test]
 fn test_w_of_1_is_a_point() {
     let a = Tuple::new(4.3, -4.2, 3.1, 1.0);
@@ -116,4 +129,17 @@ fn test_subtracting_two_vectors() {
     let v1 = Tuple::vector(3.0, 2.0, 1.0);
     let v2 = Tuple::vector(5.0, 6.0, 7.0);
     assert_eq!(v1 - v2, Tuple::vector(-2.0, -4.0, -6.0));
+}
+
+#[test]
+fn test_subtracting_a_vector_from_the_zero_vector() {
+    let zero = Tuple::vector(0.0, 0.0, 0.0);
+    let v = Tuple::vector(1.0, -2.0, 3.0);
+    assert_eq!(zero - v, Tuple::vector(-1.0, 2.0, -3.0));
+}
+
+#[test]
+fn test_negating_a_tuple() {
+    let a = Tuple::new(1.0, -2.0, 3.0, -4.0);
+    assert_eq!(-a, Tuple::new(-1.0, 2.0, -3.0, 4.0));
 }
