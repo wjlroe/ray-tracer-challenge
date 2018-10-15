@@ -45,6 +45,13 @@ impl Tuple {
             w: self.w / magnitude,
         }
     }
+
+    pub fn dot(&self, other: Tuple) -> f32 {
+        self.x * other.x
+            + self.y * other.y
+            + self.z * other.z
+            + self.w * other.w
+    }
 }
 
 #[test]
@@ -126,6 +133,13 @@ fn test_normalizing_vectors() {
         let norm = v.normalize();
         assert!((norm.magnitude() - 1.0).abs() < EPSILON);
     }
+}
+
+#[test]
+fn test_dot_product_of_two_vectors() {
+    let a = Tuple::vector(1.0, 2.0, 3.0);
+    let b = Tuple::vector(2.0, 3.0, 4.0);
+    assert!((a.dot(b) - 20.0).abs() < EPSILON);
 }
 
 impl ops::Add for Tuple {
