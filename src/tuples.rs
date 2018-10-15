@@ -30,71 +30,6 @@ impl Tuple {
     }
 }
 
-impl ops::Add for Tuple {
-    type Output = Tuple;
-
-    fn add(self, other: Tuple) -> Tuple {
-        Tuple {
-            x: self.x + other.x,
-            y: self.y + other.y,
-            z: self.z + other.z,
-            w: self.w + other.w,
-        }
-    }
-}
-
-impl ops::Sub for Tuple {
-    type Output = Tuple;
-
-    fn sub(self, other: Tuple) -> Tuple {
-        Tuple {
-            x: self.x - other.x,
-            y: self.y - other.y,
-            z: self.z - other.z,
-            w: self.w - other.w,
-        }
-    }
-}
-
-impl ops::Neg for Tuple {
-    type Output = Tuple;
-
-    fn neg(self) -> Tuple {
-        Tuple {
-            x: -self.x,
-            y: -self.y,
-            z: -self.z,
-            w: -self.w,
-        }
-    }
-}
-
-impl ops::Mul<f32> for Tuple {
-    type Output = Tuple;
-
-    fn mul(self, other: f32) -> Tuple {
-        Tuple {
-            x: self.x * other,
-            y: self.y * other,
-            z: self.z * other,
-            w: self.w * other,
-        }
-    }
-}
-
-impl ops::Div<f32> for Tuple {
-    type Output = Tuple;
-
-    fn div(self, other: f32) -> Tuple {
-        Tuple {
-            x: self.x / other,
-            y: self.y / other,
-            z: self.z / other,
-            w: self.w / other,
-        }
-    }
-}
-
 #[test]
 fn test_w_of_1_is_a_point() {
     let a = Tuple::new(4.3, -4.2, 3.1, 1.0);
@@ -129,11 +64,37 @@ fn test_vector_factory() {
     assert_eq!(v, Tuple::new(4.0, -4.0, 3.0, 0.0));
 }
 
+impl ops::Add for Tuple {
+    type Output = Tuple;
+
+    fn add(self, other: Tuple) -> Tuple {
+        Tuple {
+            x: self.x + other.x,
+            y: self.y + other.y,
+            z: self.z + other.z,
+            w: self.w + other.w,
+        }
+    }
+}
+
 #[test]
 fn test_adding_two_tuples() {
     let a1 = Tuple::new(3.0, -2.0, 5.0, 1.0);
     let a2 = Tuple::new(-2.0, 3.0, 1.0, 0.0);
     assert_eq!(a1 + a2, Tuple::new(1.0, 1.0, 6.0, 1.0));
+}
+
+impl ops::Sub for Tuple {
+    type Output = Tuple;
+
+    fn sub(self, other: Tuple) -> Tuple {
+        Tuple {
+            x: self.x - other.x,
+            y: self.y - other.y,
+            z: self.z - other.z,
+            w: self.w - other.w,
+        }
+    }
 }
 
 #[test]
@@ -164,10 +125,36 @@ fn test_subtracting_a_vector_from_the_zero_vector() {
     assert_eq!(zero - v, Tuple::vector(-1.0, 2.0, -3.0));
 }
 
+impl ops::Neg for Tuple {
+    type Output = Tuple;
+
+    fn neg(self) -> Tuple {
+        Tuple {
+            x: -self.x,
+            y: -self.y,
+            z: -self.z,
+            w: -self.w,
+        }
+    }
+}
+
 #[test]
 fn test_negating_a_tuple() {
     let a = Tuple::new(1.0, -2.0, 3.0, -4.0);
     assert_eq!(-a, Tuple::new(-1.0, 2.0, -3.0, 4.0));
+}
+
+impl ops::Mul<f32> for Tuple {
+    type Output = Tuple;
+
+    fn mul(self, other: f32) -> Tuple {
+        Tuple {
+            x: self.x * other,
+            y: self.y * other,
+            z: self.z * other,
+            w: self.w * other,
+        }
+    }
 }
 
 #[test]
@@ -180,6 +167,19 @@ fn test_multiplying_a_tuple_by_a_scalar() {
 fn test_multiplying_a_tuple_by_a_fraction() {
     let a = Tuple::new(1.0, -2.0, 3.0, -4.0);
     assert_eq!(a * 0.5, Tuple::new(0.5, -1.0, 1.5, -2.0));
+}
+
+impl ops::Div<f32> for Tuple {
+    type Output = Tuple;
+
+    fn div(self, other: f32) -> Tuple {
+        Tuple {
+            x: self.x / other,
+            y: self.y / other,
+            z: self.z / other,
+            w: self.w / other,
+        }
+    }
 }
 
 #[test]
