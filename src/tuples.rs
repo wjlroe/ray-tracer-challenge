@@ -52,6 +52,14 @@ impl Tuple {
             + self.z * other.z
             + self.w * other.w
     }
+
+    pub fn cross(&self, other: Tuple) -> Tuple {
+        Tuple::vector(
+            self.y * other.z - self.z * other.y,
+            self.z * other.x - self.x * other.z,
+            self.x * other.y - self.y * other.x,
+        )
+    }
 }
 
 #[test]
@@ -140,6 +148,14 @@ fn test_dot_product_of_two_vectors() {
     let a = Tuple::vector(1.0, 2.0, 3.0);
     let b = Tuple::vector(2.0, 3.0, 4.0);
     assert!((a.dot(b) - 20.0).abs() < EPSILON);
+}
+
+#[test]
+fn test_cross_product_of_two_vectors() {
+    let a = Tuple::vector(1.0, 2.0, 3.0);
+    let b = Tuple::vector(2.0, 3.0, 4.0);
+    assert_eq!(a.cross(b), Tuple::vector(-1.0, 2.0, -1.0));
+    assert_eq!(b.cross(a), Tuple::vector(1.0, -2.0, 1.0));
 }
 
 impl ops::Add for Tuple {
