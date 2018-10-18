@@ -206,6 +206,13 @@ fn test_splitting_long_lines_in_ppm_files() {
     assert_string_eq_for_range(ppm, expected, 3, 6);
 }
 
+#[test]
+fn test_ppm_files_are_terminated_by_a_newline() {
+    let c = Canvas::new(5, 3);
+    let mut ppm = c.to_ppm();
+    assert_eq!(ppm.pop(), Some('\n'));
+}
+
 #[cfg(test)]
 fn assert_string_eq_for_range(
     actual: String,
