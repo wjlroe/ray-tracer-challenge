@@ -18,6 +18,62 @@ fn test_color_value_to_8bit() {
     assert_eq!(color_value_to_8bit(0.5), 128);
 }
 
+struct LineLengthLimitedString {
+    limit: usize,
+    this_line_length: usize,
+    pub string: String,
+}
+
+impl LineLengthLimitedString {
+    fn new(limit: usize) -> Self {
+        LineLengthLimitedString {
+            limit,
+            this_line_length: 0,
+            string: String::new(),
+        }
+    }
+
+    fn push_str(&mut self, s: &str, n: usize) {
+        if self.this_line_length + n > self.limit {
+            self.string.push_str("\n");
+            self.this_line_length = 0;
+        }
+        self.string.push_str(s);
+        self.this_line_length += n;
+    }
+
+    fn push_num(&mut self, mut padded_front: bool, num: u8) {
+        let padding_n = if padded_front { 1 } else { 0 };
+        let n = if num > 99 {
+            3
+        } else if num > 9 {
+            2
+        } else {
+            1
+        };
+
+        if self.this_line_length + n + padding_n > self.limit {
+            self.string.push_str("\n");
+            self.this_line_length = 0;
+            padded_front = false;
+        }
+        if padded_front {
+            write!(&mut self.string, " {}", num);
+        } else {
+            write!(&mut self.string, "{}", num);
+        }
+        self.this_line_length += n;
+        if padded_front {
+            self.this_line_length += 1;
+        }
+    }
+
+    fn newline(&mut self) {
+        self.string.push_str("\n");
+        self.this_line_length = 0;
+    }
+}
+
 pub struct Canvas {
     pub width: u32,
     pub height: u32,
@@ -50,29 +106,19 @@ impl Canvas {
     }
 
     pub fn to_ppm(&self) -> String {
-        let mut ppm = String::from("P3\n");
-        write!(&mut ppm, "{} {}\n", self.width, self.height);
-        ppm.push_str("255\n");
+        let mut ppm = LineLengthLimitedString::new(70);
+        ppm.push_str("P3\n", 0);
+        write!(&mut ppm.string, "{} {}\n", self.width, self.height);
+        ppm.push_str("255\n", 0);
         for row in self.pixels.chunks(self.width as usize) {
             for (idx, pixel) in row.iter().enumerate() {
-                if idx == 0 {
-                    println!("row: {:?}", row);
-                }
-                if pixel.x != 0.0 || pixel.y != 0.0 || pixel.z != 0.0 {}
-                if idx > 0 {
-                    ppm.push_str(" ");
-                }
-                write!(
-                    &mut ppm,
-                    "{} {} {}",
-                    color_value_to_8bit(pixel.x),
-                    color_value_to_8bit(pixel.y),
-                    color_value_to_8bit(pixel.z)
-                );
+                ppm.push_num(idx > 0, color_value_to_8bit(pixel.x));
+                ppm.push_num(true, color_value_to_8bit(pixel.y));
+                ppm.push_num(true, color_value_to_8bit(pixel.z));
             }
-            ppm.push_str("\n");
+            ppm.newline();
         }
-        ppm
+        ppm.string
     }
 
     pub fn index_to_coords(&self, idx: usize) -> (u32, u32) {
@@ -136,6 +182,28 @@ fn test_constructing_the_ppm_pixel_data() {
     expected.push_str("0 0 0 0 0 0 0 128 0 0 0 0 0 0 0\n");
     expected.push_str("0 0 0 0 0 0 0 0 0 0 0 0 0 0 255\n");
     assert_string_eq_for_range(ppm, expected, 3, 5);
+}
+
+#[test]
+fn test_splitting_long_lines_in_ppm_files() {
+    let mut c = Canvas::new(10, 2);
+    let color = Tuple::color(1.0, 0.8, 0.6);
+    for x in 0..10 {
+        for y in 0..2 {
+            c.write_pixel(x, y, &color);
+        }
+    }
+    let ppm = c.to_ppm();
+    let mut expected = String::new();
+    expected.push_str(
+        "255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204\n",
+    );
+    expected.push_str("153 255 204 153 255 204 153 255 204 153 255 204 153\n");
+    expected.push_str(
+        "255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204\n",
+    );
+    expected.push_str("153 255 204 153 255 204 153 255 204 153 255 204 153\n");
+    assert_string_eq_for_range(ppm, expected, 3, 6);
 }
 
 #[cfg(test)]
