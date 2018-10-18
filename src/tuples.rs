@@ -1,8 +1,9 @@
+use std::fmt;
 use std::ops;
 
 const EPSILON: f32 = 0.00001;
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone)]
 pub struct Tuple {
     pub x: f32,
     pub y: f32,
@@ -352,5 +353,11 @@ impl PartialEq for Tuple {
             && (self.y - other.y).abs() < EPSILON
             && (self.z - other.z).abs() < EPSILON
             && (self.w - other.w).abs() < EPSILON
+    }
+}
+
+impl fmt::Debug for Tuple {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "({}, {}, {}, {})", self.x, self.y, self.z, self.w)
     }
 }
