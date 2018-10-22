@@ -3,7 +3,7 @@ use std::fmt;
 use std::ops;
 use tuples::Tuple;
 
-#[derive(Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub struct Matrix2 {
     pub rows: [[f32; 2]; 2],
 }
@@ -23,7 +23,7 @@ fn test_a_2x2_matrix_should_be_representable() {
     assert_eq!(matrix.rows[1][1], -2.0);
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub struct Matrix3 {
     pub rows: [[f32; 3]; 3],
 }
@@ -46,7 +46,7 @@ fn test_a_3x3_matrix_should_be_representable() {
     assert_eq!(matrix.rows[2][2], 1.0);
 }
 
-#[derive(PartialEq)]
+#[derive(Copy, Clone, PartialEq)]
 pub struct Matrix4 {
     pub rows: [[f32; 4]; 4],
 }
@@ -56,6 +56,15 @@ impl Matrix4 {
         Matrix4 { rows }
     }
 }
+
+pub const IDENTITY_MATRIX4: Matrix4 = Matrix4 {
+    rows: [
+        [1.0, 0.0, 0.0, 0.0],
+        [0.0, 1.0, 0.0, 0.0],
+        [0.0, 0.0, 1.0, 0.0],
+        [0.0, 0.0, 0.0, 1.0],
+    ],
+};
 
 #[test]
 fn test_constructing_and_inspecting_a_4x4_matrix() {
@@ -112,7 +121,7 @@ impl fmt::Debug for Matrix4 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         for row in 0..4 {
             for col in 0..4 {
-                write!(f, " | {:3}", self.rows[row][col])?;
+                write!(f, " | {:3.1}", self.rows[row][col])?;
             }
             write!(f, " |")?;
             write!(f, "\n")?;
@@ -159,6 +168,23 @@ fn test_multiplying_two_matrices() {
         [45.0, 94.0, 188.0, 376.0],
     ]);
     assert_eq!(matrix_a * matrix_b, expected);
+}
+
+#[test]
+fn test_multiplying_a_matrix_by_the_identity() {
+    let matrix = Matrix4::from_rows([
+        [0.0, 1.0, 2.0, 4.0],
+        [1.0, 2.0, 4.0, 8.0],
+        [2.0, 4.0, 8.0, 16.0],
+        [4.0, 8.0, 16.0, 32.0],
+    ]);
+    assert_eq!(matrix.clone() * IDENTITY_MATRIX4, matrix);
+}
+
+#[test]
+fn test_multiplying_identity_by_a_tuple() {
+    let tuple = Tuple::new(1.0, 2.0, 3.0, 4.0);
+    assert_eq!(IDENTITY_MATRIX4 * tuple, tuple);
 }
 
 impl ops::Mul<Tuple> for Matrix4 {
