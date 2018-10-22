@@ -58,6 +58,14 @@ impl Matrix3 {
     pub fn minor(&self, row: usize, col: usize) -> f32 {
         self.submatrix(row, col).determinant()
     }
+
+    pub fn cofactor(&self, row: usize, col: usize) -> f32 {
+        let mut val = self.minor(row, col);
+        if row + col % 2 != 0 {
+            val = -val
+        }
+        val
+    }
 }
 
 #[test]
@@ -93,6 +101,19 @@ fn test_calculating_a_minor_or_a_3x3_matrix() {
     let submatrix = matrix.submatrix(1, 0);
     assert_eq!(submatrix.determinant(), 25.0);
     assert_eq!(matrix.minor(1, 0), 25.0);
+}
+
+#[test]
+fn test_calculating_a_cofactor_of_a_3x3_matrix() {
+    let matrix = Matrix3::from_rows([
+        [3.0, 5.0, 0.0],
+        [2.0, -1.0, -7.0],
+        [6.0, -1.0, 5.0],
+    ]);
+    assert_eq!(matrix.minor(0, 0), -12.0);
+    assert_eq!(matrix.cofactor(0, 0), -12.0);
+    assert_eq!(matrix.minor(1, 0), 25.0);
+    assert_eq!(matrix.cofactor(1, 0), -25.0);
 }
 
 #[derive(Copy, Clone, PartialEq)]
