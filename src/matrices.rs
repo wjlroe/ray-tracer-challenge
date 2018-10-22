@@ -12,6 +12,10 @@ impl Matrix2 {
     pub fn from_rows(rows: [[f32; 2]; 2]) -> Self {
         Matrix2 { rows }
     }
+
+    pub fn determinant(&self) -> f32 {
+        self.rows[0][0] * self.rows[1][1] - self.rows[0][1] * self.rows[1][0]
+    }
 }
 
 #[test]
@@ -21,6 +25,12 @@ fn test_a_2x2_matrix_should_be_representable() {
     assert_eq!(matrix.rows[0][1], 5.0);
     assert_eq!(matrix.rows[1][0], 1.0);
     assert_eq!(matrix.rows[1][1], -2.0);
+}
+
+#[test]
+fn test_calculating_the_determinant_of_a_2x2_matrix() {
+    let matrix = Matrix2::from_rows([[1.0, 5.0], [-3.0, 2.0]]);
+    assert_eq!(matrix.determinant(), 17.0);
 }
 
 #[derive(Copy, Clone, Debug, PartialEq)]
