@@ -66,6 +66,12 @@ impl Matrix3 {
         }
         val
     }
+
+    pub fn determinant(&self) -> f32 {
+        self.rows[0][0] * self.cofactor(0, 0)
+            + self.rows[0][1] * self.cofactor(0, 1)
+            + self.rows[0][2] * self.cofactor(0, 2)
+    }
 }
 
 #[test]
@@ -114,6 +120,19 @@ fn test_calculating_a_cofactor_of_a_3x3_matrix() {
     assert_eq!(matrix.cofactor(0, 0), -12.0);
     assert_eq!(matrix.minor(1, 0), 25.0);
     assert_eq!(matrix.cofactor(1, 0), -25.0);
+}
+
+#[test]
+fn test_calculating_the_determinant_of_a_3x3_matrix() {
+    let matrix = Matrix3::from_rows([
+        [1.0, 2.0, 6.0],
+        [-5.0, 8.0, -4.0],
+        [2.0, 6.0, 4.0],
+    ]);
+    assert_eq!(matrix.cofactor(0, 0), 56.0);
+    assert_eq!(matrix.cofactor(0, 1), 12.0);
+    assert_eq!(matrix.cofactor(0, 2), -46.0);
+    assert_eq!(matrix.determinant(), -196.0);
 }
 
 #[derive(Copy, Clone, PartialEq)]
@@ -277,6 +296,25 @@ impl Matrix4 {
             [values[6], values[7], values[8]],
         ])
     }
+
+    pub fn minor(&self, row: usize, col: usize) -> f32 {
+        self.submatrix(row, col).determinant()
+    }
+
+    pub fn cofactor(&self, row: usize, col: usize) -> f32 {
+        let mut val = self.minor(row, col);
+        if row + col % 2 != 0 {
+            val = -val
+        }
+        val
+    }
+
+    pub fn determinant(&self) -> f32 {
+        self.rows[0][0] * self.cofactor(0, 0)
+            + self.rows[0][1] * self.cofactor(0, 1)
+            + self.rows[0][2] * self.cofactor(0, 2)
+            + self.rows[0][3] * self.cofactor(0, 3)
+    }
 }
 
 pub const IDENTITY_MATRIX4: Matrix4 = Matrix4 {
@@ -375,4 +413,19 @@ fn test_a_submatrix_of_a_4x4_matrix_is_a_3x3_matrix() {
         [-7.0, -1.0, 1.0],
     ]);
     assert_eq!(matrix.submatrix(2, 1), expected);
+}
+
+#[test]
+fn test_calculating_the_determinant_of_a_4x4_matrix() {
+    let matrix = Matrix4::from_rows([
+        [-2.0, -8.0, 3.0, 5.0],
+        [-3.0, 1.0, 7.0, 3.0],
+        [1.0, 2.0, -9.0, 6.0],
+        [-6.0, 7.0, 7.0, -9.0],
+    ]);
+    assert_eq!(matrix.cofactor(0, 0), 690.0);
+    assert_eq!(matrix.cofactor(0, 1), 447.0);
+    assert_eq!(matrix.cofactor(0, 2), 210.0);
+    assert_eq!(matrix.cofactor(0, 3), 51.0);
+    assert_eq!(matrix.determinant(), -4071.0);
 }
