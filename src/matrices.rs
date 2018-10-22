@@ -54,6 +54,10 @@ impl Matrix3 {
         }
         Matrix2::from_rows([[values[0], values[1]], [values[2], values[3]]])
     }
+
+    pub fn minor(&self, row: usize, col: usize) -> f32 {
+        self.submatrix(row, col).determinant()
+    }
 }
 
 #[test]
@@ -77,6 +81,18 @@ fn test_a_submatrix_of_a_3x3_matrix_is_a_2x2_matrix() {
     ]);
     let expected = Matrix2::from_rows([[-3.0, 2.0], [0.0, 6.0]]);
     assert_eq!(matrix.submatrix(0, 2), expected);
+}
+
+#[test]
+fn test_calculating_a_minor_or_a_3x3_matrix() {
+    let matrix = Matrix3::from_rows([
+        [3.0, 5.0, 0.0],
+        [2.0, -1.0, -7.0],
+        [6.0, -1.0, 5.0],
+    ]);
+    let submatrix = matrix.submatrix(1, 0);
+    assert_eq!(submatrix.determinant(), 25.0);
+    assert_eq!(matrix.minor(1, 0), 25.0);
 }
 
 #[derive(Copy, Clone, PartialEq)]
