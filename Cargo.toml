@@ -4,3 +4,4 @@ version = "0.1.0"
 authors = ["William Roe <git@wjlr.org.uk>"]
 
 [dependencies]
+num = "0.2.0"

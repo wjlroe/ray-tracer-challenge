@@ -1,7 +1,8 @@
+use num::{Float, Num, ToPrimitive};
 use std::fmt::Write;
-use tuples::Tuple;
+use tuples::{Tuple, T as TupleT};
 
-fn color_value_to_8bit(value: f32) -> u8 {
+fn color_value_to_8bit<T: Float>(value: T) -> u8 {
     if value > 1.0 {
         255
     } else if value < 0.0 {
@@ -74,16 +75,16 @@ impl LineLengthLimitedString {
     }
 }
 
-pub struct Canvas {
+pub struct Canvas<TupleT> {
     pub width: u32,
     pub height: u32,
-    pub pixels: Vec<Tuple>,
+    pub pixels: Vec<Tuple<TupleT>>,
 }
 
-impl Canvas {
+impl<TupleT> Canvas<TupleT> {
     pub fn new(width: u32, height: u32) -> Self {
         let num = width * height;
-        let mut pixels = Vec::with_capacity(num as usize);
+        let mut pixels: Vec<Tuple<TupleT>> = Vec::with_capacity(num as usize);
         for _ in 0..num {
             pixels.push(Tuple::color(0.0, 0.0, 0.0));
         }
@@ -94,14 +95,14 @@ impl Canvas {
         }
     }
 
-    pub fn write_pixel(&mut self, x: u32, y: u32, color: &Tuple) {
+    pub fn write_pixel(&mut self, x: u32, y: u32, color: &Tuple<TupleT>) {
         let idx = self.coords_to_index(x, y);
         if let Some(pixel) = self.pixels.get_mut(idx) {
             *pixel = color.clone()
         }
     }
 
-    pub fn pixel_at(&self, x: u32, y: u32) -> Option<&Tuple> {
+    pub fn pixel_at(&self, x: u32, y: u32) -> Option<&Tuple<TupleT>> {
         self.pixels.get(self.coords_to_index(x, y))
     }
 
