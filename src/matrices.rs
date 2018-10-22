@@ -42,6 +42,18 @@ impl Matrix3 {
     pub fn from_rows(rows: [[f32; 3]; 3]) -> Self {
         Matrix3 { rows }
     }
+
+    pub fn submatrix(&self, del_row: usize, del_col: usize) -> Matrix2 {
+        let mut values = Vec::with_capacity(2 * 2);
+        for (rowi, row) in self.rows.iter().enumerate() {
+            for (coli, value) in row.iter().enumerate() {
+                if rowi != del_row && coli != del_col {
+                    values.push(value.clone());
+                }
+            }
+        }
+        Matrix2::from_rows([[values[0], values[1]], [values[2], values[3]]])
+    }
 }
 
 #[test]
@@ -54,6 +66,17 @@ fn test_a_3x3_matrix_should_be_representable() {
     assert_eq!(matrix.rows[0][0], -3.0);
     assert_eq!(matrix.rows[1][1], -2.0);
     assert_eq!(matrix.rows[2][2], 1.0);
+}
+
+#[test]
+fn test_a_submatrix_of_a_3x3_matrix_is_a_2x2_matrix() {
+    let matrix = Matrix3::from_rows([
+        [1.0, 5.0, 0.0],
+        [-3.0, 2.0, 7.0],
+        [0.0, 6.0, -3.0],
+    ]);
+    let expected = Matrix2::from_rows([[-3.0, 2.0], [0.0, 6.0]]);
+    assert_eq!(matrix.submatrix(0, 2), expected);
 }
 
 #[derive(Copy, Clone, PartialEq)]
@@ -201,6 +224,22 @@ impl Matrix4 {
             ],
         ])
     }
+
+    pub fn submatrix(&self, del_row: usize, del_col: usize) -> Matrix3 {
+        let mut values = Vec::with_capacity(3 * 3);
+        for (rowi, row) in self.rows.iter().enumerate() {
+            for (coli, value) in row.iter().enumerate() {
+                if rowi != del_row && coli != del_col {
+                    values.push(value.clone());
+                }
+            }
+        }
+        Matrix3::from_rows([
+            [values[0], values[1], values[2]],
+            [values[3], values[4], values[5]],
+            [values[6], values[7], values[8]],
+        ])
+    }
 }
 
 pub const IDENTITY_MATRIX4: Matrix4 = Matrix4 {
@@ -283,4 +322,20 @@ fn test_transposing_a_matrix() {
 #[test]
 fn test_transposing_the_identity_matrix() {
     assert_eq!(IDENTITY_MATRIX4.transpose(), IDENTITY_MATRIX4);
+}
+
+#[test]
+fn test_a_submatrix_of_a_4x4_matrix_is_a_3x3_matrix() {
+    let matrix = Matrix4::from_rows([
+        [-6.0, 1.0, 1.0, 6.0],
+        [-8.0, 5.0, 8.0, 6.0],
+        [-1.0, 0.0, 8.0, 2.0],
+        [-7.0, 1.0, -1.0, 1.0],
+    ]);
+    let expected = Matrix3::from_rows([
+        [-6.0, 1.0, 6.0],
+        [-8.0, 8.0, 6.0],
+        [-7.0, -1.0, 1.0],
+    ]);
+    assert_eq!(matrix.submatrix(2, 1), expected);
 }
