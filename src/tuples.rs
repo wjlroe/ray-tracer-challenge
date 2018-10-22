@@ -1,62 +1,59 @@
-use num::{Float, One, Signed, Zero};
 use std::fmt;
 use std::ops;
 
 const EPSILON: f32 = 0.00001;
 
-pub type T = Float + fmt::Display;
-
 #[derive(Copy, Clone)]
-pub struct Tuple<T> {
-    pub x: T,
-    pub y: T,
-    pub z: T,
-    pub w: T,
+pub struct Tuple {
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
+    pub w: f32,
 }
 
-impl<T> Tuple<T> {
-    pub fn new(x: T, y: T, z: T, w: T) -> Self {
+impl Tuple {
+    pub fn new(x: f32, y: f32, z: f32, w: f32) -> Self {
         Tuple { x, y, z, w }
     }
 
-    pub fn point(x: T, y: T, z: T) -> Self {
-        Tuple::new(x, y, z, One::one())
+    pub fn point(x: f32, y: f32, z: f32) -> Self {
+        Tuple::new(x, y, z, 1.0)
     }
 
-    pub fn vector(x: T, y: T, z: T) -> Self {
-        Tuple::new(x, y, z, Zero::zero())
+    pub fn vector(x: f32, y: f32, z: f32) -> Self {
+        Tuple::new(x, y, z, 0.0)
     }
 
-    pub fn color(red: T, green: T, blue: T) -> Self {
-        Tuple::new(red, green, blue, Zero::zero())
+    pub fn color(red: f32, green: f32, blue: f32) -> Self {
+        Tuple::new(red, green, blue, 0.0)
     }
 
-    pub fn red(&self) -> T {
+    pub fn red(&self) -> f32 {
         self.x
     }
 
-    pub fn green(&self) -> T {
+    pub fn green(&self) -> f32 {
         self.y
     }
 
-    pub fn blue(&self) -> T {
+    pub fn blue(&self) -> f32 {
         self.z
     }
 
     pub fn is_point(&self) -> bool {
-        self.w == One::one()
+        self.w == 1.0
     }
 
     pub fn is_vector(&self) -> bool {
-        self.w == Zero::zero()
+        self.w == 0.0
     }
 
-    pub fn magnitude(&self) -> T {
+    pub fn magnitude(&self) -> f32 {
         (self.x.powi(2) + self.y.powi(2) + self.z.powi(2) + self.w.powi(2))
             .sqrt()
     }
 
-    pub fn normalize(&self) -> Tuple<T> {
+    pub fn normalize(&self) -> Tuple {
         let magnitude = self.magnitude();
         Tuple {
             x: self.x / magnitude,
@@ -66,14 +63,14 @@ impl<T> Tuple<T> {
         }
     }
 
-    pub fn dot(&self, other: Tuple<T>) -> T {
+    pub fn dot(&self, other: Tuple) -> f32 {
         self.x * other.x
             + self.y * other.y
             + self.z * other.z
             + self.w * other.w
     }
 
-    pub fn cross(&self, other: Tuple<T>) -> Tuple<T> {
+    pub fn cross(&self, other: Tuple) -> Tuple {
         Tuple::vector(
             self.y * other.z - self.z * other.y,
             self.z * other.x - self.x * other.z,
@@ -186,10 +183,10 @@ fn test_cross_product_of_two_vectors() {
     assert_eq!(b.cross(a), Tuple::vector(1.0, -2.0, 1.0));
 }
 
-impl<T> ops::Add for Tuple<T> {
-    type Output = Tuple<T>;
+impl ops::Add for Tuple {
+    type Output = Tuple;
 
-    fn add(self, other: Tuple<T>) -> Tuple<T> {
+    fn add(self, other: Tuple) -> Tuple {
         Tuple {
             x: self.x + other.x,
             y: self.y + other.y,
@@ -213,10 +210,10 @@ fn test_adding_colors() {
     assert_eq!(c1 + c2, Tuple::color(1.6, 0.7, 1.0));
 }
 
-impl<T> ops::Sub for Tuple<T> {
-    type Output = Tuple<T>;
+impl ops::Sub for Tuple {
+    type Output = Tuple;
 
-    fn sub(self, other: Tuple<T>) -> Tuple<T> {
+    fn sub(self, other: Tuple) -> Tuple {
         Tuple {
             x: self.x - other.x,
             y: self.y - other.y,
@@ -261,10 +258,10 @@ fn test_subtracting_colors() {
     assert_eq!(c1 - c2, Tuple::color(0.2, 0.5, 0.5))
 }
 
-impl<T> ops::Neg for Tuple<T> {
-    type Output = Tuple<T>;
+impl ops::Neg for Tuple {
+    type Output = Tuple;
 
-    fn neg(self) -> Tuple<T> {
+    fn neg(self) -> Tuple {
         Tuple {
             x: -self.x,
             y: -self.y,
@@ -280,10 +277,10 @@ fn test_negating_a_tuple() {
     assert_eq!(-a, Tuple::new(-1.0, 2.0, -3.0, 4.0));
 }
 
-impl<T> ops::Mul<T> for Tuple<T> {
-    type Output = Tuple<T>;
+impl ops::Mul<f32> for Tuple {
+    type Output = Tuple;
 
-    fn mul(self, other: T) -> Tuple<T> {
+    fn mul(self, other: f32) -> Tuple {
         Tuple {
             x: self.x * other,
             y: self.y * other,
@@ -311,10 +308,10 @@ fn test_multiplying_a_color_by_a_scalar() {
     assert_eq!(c * 2.0, Tuple::color(0.4, 0.6, 0.8));
 }
 
-impl<T> ops::Mul for Tuple<T> {
-    type Output = Tuple<T>;
+impl ops::Mul for Tuple {
+    type Output = Tuple;
 
-    fn mul(self, other: Tuple<T>) -> Tuple<T> {
+    fn mul(self, other: Tuple) -> Tuple {
         Tuple {
             x: self.x * other.x,
             y: self.y * other.y,
@@ -331,10 +328,10 @@ fn test_multiplying_colors() {
     assert_eq!(c1 * c2, Tuple::color(0.9, 0.2, 0.04));
 }
 
-impl<T> ops::Div<T> for Tuple<T> {
-    type Output = Tuple<T>;
+impl ops::Div<f32> for Tuple {
+    type Output = Tuple;
 
-    fn div(self, other: T) -> Tuple<T> {
+    fn div(self, other: f32) -> Tuple {
         Tuple {
             x: self.x / other,
             y: self.y / other,
@@ -350,8 +347,8 @@ fn test_dividing_a_tuple_by_a_scalar() {
     assert_eq!(a / 2.0, Tuple::new(0.5, -1.0, 1.5, -2.0));
 }
 
-impl<T> PartialEq for Tuple<T> {
-    fn eq(&self, other: &Tuple<T>) -> bool {
+impl PartialEq for Tuple {
+    fn eq(&self, other: &Tuple) -> bool {
         (self.x - other.x).abs() < EPSILON
             && (self.y - other.y).abs() < EPSILON
             && (self.z - other.z).abs() < EPSILON
@@ -359,7 +356,7 @@ impl<T> PartialEq for Tuple<T> {
     }
 }
 
-impl<T> fmt::Debug for Tuple<T> {
+impl fmt::Debug for Tuple {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "({}, {}, {}, {})", self.x, self.y, self.z, self.w)
     }

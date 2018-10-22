@@ -1,64 +1,65 @@
-use num::Num;
 use std::default::Default;
 use std::fmt;
 use std::ops;
-use tuples::{Tuple, T as TupleT};
+use tuples::Tuple;
 
 #[derive(Debug, PartialEq)]
-pub struct Matrix2<Num> {
-    pub rows: [[Num; 2]; 2],
+pub struct Matrix2 {
+    pub rows: [[f32; 2]; 2],
 }
 
-impl<T: Num> Matrix2<T> {
-    pub fn from_rows(rows: [[T; 2]; 2]) -> Self {
+impl Matrix2 {
+    pub fn from_rows(rows: [[f32; 2]; 2]) -> Self {
         Matrix2 { rows }
     }
 }
 
 #[test]
 fn test_a_2x2_matrix_should_be_representable() {
-    let matrix = Matrix2::from_rows([[-3, 5], [1, -2]]);
-    assert_eq!(matrix.rows[0][0], -3);
-    assert_eq!(matrix.rows[0][1], 5);
-    assert_eq!(matrix.rows[1][0], 1);
-    assert_eq!(matrix.rows[1][1], -2);
+    let matrix = Matrix2::from_rows([[-3.0, 5.0], [1.0, -2.0]]);
+    assert_eq!(matrix.rows[0][0], -3.0);
+    assert_eq!(matrix.rows[0][1], 5.0);
+    assert_eq!(matrix.rows[1][0], 1.0);
+    assert_eq!(matrix.rows[1][1], -2.0);
 }
 
 #[derive(Debug, PartialEq)]
-pub struct Matrix3<Num> {
-    pub rows: [[Num; 3]; 3],
+pub struct Matrix3 {
+    pub rows: [[f32; 3]; 3],
 }
 
-impl<T: Num> Matrix3<T> {
-    pub fn from_rows(rows: [[T; 3]; 3]) -> Self {
+impl Matrix3 {
+    pub fn from_rows(rows: [[f32; 3]; 3]) -> Self {
         Matrix3 { rows }
     }
 }
 
 #[test]
 fn test_a_3x3_matrix_should_be_representable() {
-    let matrix = Matrix3::from_rows([[-3, 5, 0], [1, -2, -7], [0, 1, 1]]);
-    assert_eq!(matrix.rows[0][0], -3);
-    assert_eq!(matrix.rows[1][1], -2);
-    assert_eq!(matrix.rows[2][2], 1);
+    let matrix = Matrix3::from_rows([
+        [-3.0, 5.0, 0.0],
+        [1.0, -2.0, -7.0],
+        [0.0, 1.0, 1.0],
+    ]);
+    assert_eq!(matrix.rows[0][0], -3.0);
+    assert_eq!(matrix.rows[1][1], -2.0);
+    assert_eq!(matrix.rows[2][2], 1.0);
 }
 
 #[derive(PartialEq)]
-pub struct Matrix4<Num> {
-    pub rows: [[Num; 4]; 4],
+pub struct Matrix4 {
+    pub rows: [[f32; 4]; 4],
 }
 
-pub type Matrix4f32 = Matrix4<f32>;
-
-impl<T: Num> Matrix4<T> {
-    pub fn from_rows(rows: [[T; 4]; 4]) -> Self {
+impl Matrix4 {
+    pub fn from_rows(rows: [[f32; 4]; 4]) -> Self {
         Matrix4 { rows }
     }
 }
 
 #[test]
 fn test_constructing_and_inspecting_a_4x4_matrix() {
-    let matrix = Matrix4f32::from_rows([
+    let matrix = Matrix4::from_rows([
         [1.0, 2.0, 3.0, 4.0],
         [5.5, 6.5, 7.5, 8.5],
         [9.0, 10.0, 11.0, 12.0],
@@ -76,16 +77,16 @@ fn test_constructing_and_inspecting_a_4x4_matrix() {
 #[test]
 fn test_matrix_equality_with_identical_matrices() {
     let matrix_a = Matrix4::from_rows([
-        [1, 2, 3, 4],
-        [2, 3, 4, 5],
-        [3, 4, 5, 6],
-        [4, 5, 6, 7],
+        [1.0, 2.0, 3.0, 4.0],
+        [2.0, 3.0, 4.0, 5.0],
+        [3.0, 4.0, 5.0, 6.0],
+        [4.0, 5.0, 6.0, 7.0],
     ]);
     let matrix_b = Matrix4::from_rows([
-        [1, 2, 3, 4],
-        [2, 3, 4, 5],
-        [3, 4, 5, 6],
-        [4, 5, 6, 7],
+        [1.0, 2.0, 3.0, 4.0],
+        [2.0, 3.0, 4.0, 5.0],
+        [3.0, 4.0, 5.0, 6.0],
+        [4.0, 5.0, 6.0, 7.0],
     ]);
     assert_eq!(matrix_a, matrix_b);
 }
@@ -93,21 +94,21 @@ fn test_matrix_equality_with_identical_matrices() {
 #[test]
 fn test_matrix_equality_with_different_matrices() {
     let matrix_a = Matrix4::from_rows([
-        [1, 2, 3, 4],
-        [2, 3, 4, 5],
-        [3, 4, 5, 6],
-        [4, 5, 6, 7],
+        [1.0, 2.0, 3.0, 4.0],
+        [2.0, 3.0, 4.0, 5.0],
+        [3.0, 4.0, 5.0, 6.0],
+        [4.0, 5.0, 6.0, 7.0],
     ]);
     let matrix_b = Matrix4::from_rows([
-        [0, 2, 3, 4],
-        [2, 3, 4, 5],
-        [3, 4, 5, 6],
-        [4, 5, 6, 7],
+        [0.0, 2.0, 3.0, 4.0],
+        [2.0, 3.0, 4.0, 5.0],
+        [3.0, 4.0, 5.0, 6.0],
+        [4.0, 5.0, 6.0, 7.0],
     ]);
     assert!(matrix_a != matrix_b);
 }
 
-impl<T: Num> fmt::Debug for Matrix4<T> {
+impl fmt::Debug for Matrix4 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         for row in 0..4 {
             for col in 0..4 {
@@ -120,10 +121,10 @@ impl<T: Num> fmt::Debug for Matrix4<T> {
     }
 }
 
-impl<T: Num> ops::Mul<Matrix4<T>> for Matrix4<T> {
+impl ops::Mul<Matrix4> for Matrix4 {
     type Output = Self;
 
-    fn mul(self, other: Matrix4<T>) -> Self {
+    fn mul(self, other: Matrix4) -> Self {
         let mut rows = [[Default::default(); 4]; 4];
         for row in 0..4 {
             for col in 0..4 {
@@ -140,38 +141,47 @@ impl<T: Num> ops::Mul<Matrix4<T>> for Matrix4<T> {
 #[test]
 fn test_multiplying_two_matrices() {
     let matrix_a = Matrix4::from_rows([
-        [1, 2, 3, 4],
-        [2, 3, 4, 5],
-        [3, 4, 5, 6],
-        [4, 5, 6, 7],
+        [1.0, 2.0, 3.0, 4.0],
+        [2.0, 3.0, 4.0, 5.0],
+        [3.0, 4.0, 5.0, 6.0],
+        [4.0, 5.0, 6.0, 7.0],
     ]);
     let matrix_b = Matrix4::from_rows([
-        [0, 1, 2, 4],
-        [1, 2, 4, 8],
-        [2, 4, 8, 16],
-        [4, 8, 16, 32],
+        [0.0, 1.0, 2.0, 4.0],
+        [1.0, 2.0, 4.0, 8.0],
+        [2.0, 4.0, 8.0, 16.0],
+        [4.0, 8.0, 16.0, 32.0],
     ]);
     let expected = Matrix4::from_rows([
-        [24, 49, 98, 196],
-        [31, 64, 128, 256],
-        [38, 79, 158, 316],
-        [45, 94, 188, 376],
+        [24.0, 49.0, 98.0, 196.0],
+        [31.0, 64.0, 128.0, 256.0],
+        [38.0, 79.0, 158.0, 316.0],
+        [45.0, 94.0, 188.0, 376.0],
     ]);
     assert_eq!(matrix_a * matrix_b, expected);
 }
 
-impl<TupleT, M: Num> ops::Mul<Tuple<TupleT>> for Matrix4<M> {
-    type Output = Tuple<TupleT>;
+impl ops::Mul<Tuple> for Matrix4 {
+    type Output = Tuple;
 
-    fn mul(self, rhs: Tuple<TupleT>) -> Tuple<TupleT> {
+    fn mul(self, rhs: Tuple) -> Tuple {
         Tuple::new(
             self.rows[0][0] as f32 * rhs.x
                 + self.rows[0][1] as f32 * rhs.y
                 + self.rows[0][2] as f32 * rhs.z
                 + self.rows[0][3] as f32 * rhs.w,
-            0.0,
-            0.0,
-            0.0,
+            self.rows[1][0] as f32 * rhs.x
+                + self.rows[1][1] as f32 * rhs.y
+                + self.rows[1][2] as f32 * rhs.z
+                + self.rows[1][3] as f32 * rhs.w,
+            self.rows[2][0] as f32 * rhs.x
+                + self.rows[2][1] as f32 * rhs.y
+                + self.rows[2][2] as f32 * rhs.z
+                + self.rows[2][3] as f32 * rhs.w,
+            self.rows[3][0] as f32 * rhs.x
+                + self.rows[3][1] as f32 * rhs.y
+                + self.rows[3][2] as f32 * rhs.z
+                + self.rows[3][3] as f32 * rhs.w,
         )
     }
 }
@@ -179,10 +189,10 @@ impl<TupleT, M: Num> ops::Mul<Tuple<TupleT>> for Matrix4<M> {
 #[test]
 fn test_matrix_multiplied_by_a_tuple() {
     let matrix = Matrix4::from_rows([
-        [1, 2, 3, 4],
-        [2, 4, 4, 2],
-        [8, 6, 4, 1],
-        [0, 0, 0, 1],
+        [1.0, 2.0, 3.0, 4.0],
+        [2.0, 4.0, 4.0, 2.0],
+        [8.0, 6.0, 4.0, 1.0],
+        [0.0, 0.0, 0.0, 1.0],
     ]);
     let tuple = Tuple::new(1.0, 2.0, 3.0, 1.0);
     assert_eq!(matrix * tuple, Tuple::new(18.0, 24.0, 33.0, 1.0));
