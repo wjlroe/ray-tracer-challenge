@@ -335,6 +335,14 @@ impl Matrix4 {
         matrix
     }
 
+    pub fn scaling(x: f32, y: f32, z: f32) -> Self {
+        let mut matrix = IDENTITY_MATRIX4;
+        matrix.rows[0][0] = x;
+        matrix.rows[1][1] = y;
+        matrix.rows[2][2] = z;
+        matrix
+    }
+
     pub fn transpose(&self) -> Self {
         Matrix4::from_rows([
             [
@@ -653,4 +661,33 @@ fn test_translation_does_not_affect_vectors() {
     let transform = Matrix4::translation(5.0, -3.0, 2.0);
     let v = Tuple::vector(-3.0, 4.0, 5.0);
     assert_eq!(transform * v, v);
+}
+
+#[test]
+fn test_scaling_matrix_applied_to_a_point() {
+    let transform = Matrix4::scaling(2.0, 3.0, 4.0);
+    let p = Tuple::point(-4.0, 6.0, 8.0);
+    assert_eq!(transform * p, Tuple::point(-8.0, 18.0, 32.0));
+}
+
+#[test]
+fn test_a_scaling_matrix_applied_to_a_vector() {
+    let transform = Matrix4::scaling(2.0, 3.0, 4.0);
+    let v = Tuple::vector(-4.0, 6.0, 8.0);
+    assert_eq!(transform * v, Tuple::vector(-8.0, 18.0, 32.0));
+}
+
+#[test]
+fn test_multiplying_by_the_inverse_of_a_scaling_matrix() {
+    let transform = Matrix4::scaling(2.0, 3.0, 4.0);
+    let inv = transform.inverse();
+    let v = Tuple::vector(-4.0, 6.0, 8.0);
+    assert_eq!(inv * v, Tuple::vector(-2.0, 2.0, 2.0));
+}
+
+#[test]
+fn test_reflection_is_scaling_by_a_negative_value() {
+    let transform = Matrix4::scaling(-1.0, 1.0, 1.0);
+    let p = Tuple::point(2.0, 3.0, 4.0);
+    assert_eq!(transform * p, Tuple::point(-2.0, 3.0, 4.0));
 }
