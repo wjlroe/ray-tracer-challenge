@@ -327,6 +327,14 @@ impl Matrix4 {
         Matrix4 { rows }
     }
 
+    pub fn translation(x: f32, y: f32, z: f32) -> Self {
+        let mut matrix = IDENTITY_MATRIX4;
+        matrix.rows[0][3] = x;
+        matrix.rows[1][3] = y;
+        matrix.rows[2][3] = z;
+        matrix
+    }
+
     pub fn transpose(&self) -> Self {
         Matrix4::from_rows([
             [
@@ -623,4 +631,26 @@ fn test_multiplying_a_product_by_its_inverse() {
     ]);
     let c = matrix_a * matrix_b;
     assert_eq!(c * matrix_b.inverse(), matrix_a);
+}
+
+#[test]
+fn test_multiplying_by_a_translation_matrix() {
+    let transform = Matrix4::translation(5.0, -3.0, 2.0);
+    let p = Tuple::point(-3.0, 4.0, 5.0);
+    assert_eq!(transform * p, Tuple::point(2.0, 1.0, 7.0));
+}
+
+#[test]
+fn test_multiplying_by_the_inverse_of_a_translation_matrix() {
+    let transform = Matrix4::translation(5.0, -3.0, 2.0);
+    let inv = transform.inverse();
+    let p = Tuple::point(-3.0, 4.0, 5.0);
+    assert_eq!(inv * p, Tuple::point(-8.0, 7.0, 3.0));
+}
+
+#[test]
+fn test_translation_does_not_affect_vectors() {
+    let transform = Matrix4::translation(5.0, -3.0, 2.0);
+    let v = Tuple::vector(-3.0, 4.0, 5.0);
+    assert_eq!(transform * v, v);
 }
