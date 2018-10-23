@@ -1,7 +1,6 @@
+use super::EPSILON;
 use std::fmt;
 use std::ops;
-
-const EPSILON: f32 = 0.00001;
 
 #[derive(Copy, Clone)]
 pub struct Tuple {
