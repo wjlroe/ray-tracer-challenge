@@ -370,6 +370,24 @@ impl Matrix4 {
         matrix
     }
 
+    pub fn shearing(
+        xy: f32,
+        xz: f32,
+        yx: f32,
+        yz: f32,
+        zx: f32,
+        zy: f32,
+    ) -> Self {
+        let mut matrix = IDENTITY_MATRIX4;
+        matrix.rows[0][1] = xy;
+        matrix.rows[0][2] = xz;
+        matrix.rows[1][0] = yx;
+        matrix.rows[1][2] = yz;
+        matrix.rows[2][0] = zx;
+        matrix.rows[2][1] = zy;
+        matrix
+    }
+
     pub fn transpose(&self) -> Self {
         Matrix4::from_rows([
             [
@@ -772,4 +790,46 @@ fn test_rotating_a_point_around_the_z_axis() {
         Tuple::point(-2f32.sqrt() / 2.0, 2f32.sqrt() / 2.0, 0.0)
     );
     assert_eq!(full_quarter * p, Tuple::point(-1.0, 0.0, 0.0));
+}
+
+#[test]
+fn test_shearing_transformation_moves_x_in_proportion_to_y() {
+    let transform = Matrix4::shearing(1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+    let p = Tuple::point(2.0, 3.0, 4.0);
+    assert_eq!(transform * p, Tuple::point(5.0, 3.0, 4.0));
+}
+
+#[test]
+fn test_shearing_transformation_moves_x_in_proportion_to_z() {
+    let transform = Matrix4::shearing(0.0, 1.0, 0.0, 0.0, 0.0, 0.0);
+    let p = Tuple::point(2.0, 3.0, 4.0);
+    assert_eq!(transform * p, Tuple::point(6.0, 3.0, 4.0));
+}
+
+#[test]
+fn test_shearing_transformation_moves_y_in_proportion_to_x() {
+    let transform = Matrix4::shearing(0.0, 0.0, 1.0, 0.0, 0.0, 0.0);
+    let p = Tuple::point(2.0, 3.0, 4.0);
+    assert_eq!(transform * p, Tuple::point(2.0, 5.0, 4.0));
+}
+
+#[test]
+fn test_shearing_transformation_moves_y_in_proprtion_to_z() {
+    let transform = Matrix4::shearing(0.0, 0.0, 0.0, 1.0, 0.0, 0.0);
+    let p = Tuple::point(2.0, 3.0, 4.0);
+    assert_eq!(transform * p, Tuple::point(2.0, 7.0, 4.0));
+}
+
+#[test]
+fn test_shearing_transformation_moves_z_in_proprtion_to_x() {
+    let transform = Matrix4::shearing(0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+    let p = Tuple::point(2.0, 3.0, 4.0);
+    assert_eq!(transform * p, Tuple::point(2.0, 3.0, 6.0));
+}
+
+#[test]
+fn test_shearing_transformation_moves_z_in_proprtion_to_y() {
+    let transform = Matrix4::shearing(0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
+    let p = Tuple::point(2.0, 3.0, 4.0);
+    assert_eq!(transform * p, Tuple::point(2.0, 3.0, 7.0));
 }
