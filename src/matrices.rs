@@ -352,6 +352,15 @@ impl Matrix4 {
         matrix
     }
 
+    pub fn rotation_y(angle: f32) -> Self {
+        let mut matrix = IDENTITY_MATRIX4;
+        matrix.rows[0][0] = angle.cos();
+        matrix.rows[0][2] = angle.sin();
+        matrix.rows[2][0] = -angle.sin();
+        matrix.rows[2][2] = angle.cos();
+        matrix
+    }
+
     pub fn transpose(&self) -> Self {
         Matrix4::from_rows([
             [
@@ -726,4 +735,18 @@ fn test_the_inverse_of_an_x_rotation_rotates_in_the_opposite_direction() {
         inv * v,
         Tuple::point(0.0, 2f32.sqrt() / 2.0, -2f32.sqrt() / 2.0)
     );
+}
+
+#[test]
+fn test_rotating_a_point_around_the_y_axis() {
+    use std::f32::consts::PI;
+
+    let p = Tuple::point(0.0, 0.0, 1.0);
+    let half_quarter = Matrix4::rotation_y(PI / 4.0);
+    let full_quarter = Matrix4::rotation_y(PI / 2.0);
+    assert_eq!(
+        half_quarter * p,
+        Tuple::point(2f32.sqrt() / 2.0, 0.0, 2f32.sqrt() / 2.0)
+    );
+    assert_eq!(full_quarter * p, Tuple::point(1.0, 0.0, 0.0));
 }
