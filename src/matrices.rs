@@ -361,6 +361,15 @@ impl Matrix4 {
         matrix
     }
 
+    pub fn rotation_z(angle: f32) -> Self {
+        let mut matrix = IDENTITY_MATRIX4;
+        matrix.rows[0][0] = angle.cos();
+        matrix.rows[0][1] = -angle.sin();
+        matrix.rows[1][0] = angle.sin();
+        matrix.rows[1][1] = angle.cos();
+        matrix
+    }
+
     pub fn transpose(&self) -> Self {
         Matrix4::from_rows([
             [
@@ -749,4 +758,18 @@ fn test_rotating_a_point_around_the_y_axis() {
         Tuple::point(2f32.sqrt() / 2.0, 0.0, 2f32.sqrt() / 2.0)
     );
     assert_eq!(full_quarter * p, Tuple::point(1.0, 0.0, 0.0));
+}
+
+#[test]
+fn test_rotating_a_point_around_the_z_axis() {
+    use std::f32::consts::PI;
+
+    let p = Tuple::point(0.0, 1.0, 0.0);
+    let half_quarter = Matrix4::rotation_z(PI / 4.0);
+    let full_quarter = Matrix4::rotation_z(PI / 2.0);
+    assert_eq!(
+        half_quarter * p,
+        Tuple::point(-2f32.sqrt() / 2.0, 2f32.sqrt() / 2.0, 0.0)
+    );
+    assert_eq!(full_quarter * p, Tuple::point(-1.0, 0.0, 0.0));
 }
