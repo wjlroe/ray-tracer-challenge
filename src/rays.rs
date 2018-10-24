@@ -1,6 +1,8 @@
+use super::EPSILON;
+use std::cmp;
 use tuples::Tuple;
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub struct Sphere {}
 
 impl Sphere {
@@ -127,16 +129,56 @@ fn test_intersect_sets_the_object_on_the_intersection() {
     assert_eq!(xs[1].object, s.clone());
 }
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug)]
 pub struct Intersection {
     pub t: f32,
     pub object: Sphere,
+}
+
+impl PartialEq for Intersection {
+    fn eq(&self, other: &Intersection) -> bool {
+        (self.t - other.t).abs() < EPSILON && self.object == other.object
+    }
+}
+
+impl Eq for Intersection {}
+
+impl cmp::PartialOrd for Intersection {
+    fn partial_cmp(&self, other: &Intersection) -> Option<cmp::Ordering> {
+        if self.t < other.t {
+            Some(cmp::Ordering::Less)
+        } else if self.t > other.t {
+            Some(cmp::Ordering::Greater)
+        } else {
+            Some(cmp::Ordering::Equal)
+        }
+    }
+}
+
+impl cmp::Ord for Intersection {
+    fn cmp(&self, other: &Intersection) -> cmp::Ordering {
+        if self.t < other.t {
+            cmp::Ordering::Less
+        } else if self.t > other.t {
+            cmp::Ordering::Greater
+        } else {
+            cmp::Ordering::Equal
+        }
+    }
 }
 
 impl Intersection {
     pub fn new(t: f32, object: Sphere) -> Self {
         Intersection { t, object }
     }
+}
+
+pub fn hit(intersections: Vec<Intersection>) -> Option<Intersection> {
+    intersections
+        .iter()
+        .filter(|inter| inter.t > 0.0)
+        .min()
+        .cloned()
 }
 
 #[test]
@@ -154,4 +196,39 @@ fn test_aggregating_intersections() {
     assert_eq!(xs.len(), 2);
     assert_eq!(xs[0].t, 1.0);
     assert_eq!(xs[1].t, 2.0);
+}
+
+#[test]
+fn test_the_hit_when_all_intersections_have_positive_t() {
+    let s = Sphere {};
+    let xs = s.intersections(vec![1.0, 2.0]);
+    let h = hit(xs);
+    assert!(h.is_some());
+    assert_eq!(h.unwrap().t, 1.0);
+}
+
+#[test]
+fn test_the_hit_when_some_intersections_have_negative_t() {
+    let s = Sphere {};
+    let xs = s.intersections(vec![1.0, -1.0]);
+    let h = hit(xs);
+    assert!(h.is_some());
+    assert_eq!(h.unwrap().t, 1.0);
+}
+
+#[test]
+fn test_the_hit_when_all_intersections_have_negative_t() {
+    let s = Sphere {};
+    let xs = s.intersections(vec![-2.0, -1.0]);
+    let h = hit(xs);
+    assert!(h.is_none());
+}
+
+#[test]
+fn test_the_hit_is_always_the_lowest_non_negative_intersection() {
+    let s = Sphere {};
+    let xs = s.intersections(vec![5.0, 7.0, -3.0, 2.0]);
+    let h = hit(xs);
+    assert!(h.is_some());
+    assert_eq!(h.unwrap().t, 2.0);
 }
