@@ -1,17 +1,39 @@
 use super::EPSILON;
-use matrices::Matrix4;
+use matrices::{Matrix4, IDENTITY_MATRIX4};
 use std::cmp;
 use tuples::Tuple;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
-pub struct Sphere {}
+pub struct Sphere {
+    transform: Matrix4,
+}
 
 impl Sphere {
+    pub fn new() -> Self {
+        Sphere {
+            transform: IDENTITY_MATRIX4,
+        }
+    }
+
     pub fn intersections(&self, ts: Vec<f32>) -> Vec<Intersection> {
         ts.iter()
             .map(|t| Intersection::new(*t, self.clone()))
             .collect::<Vec<_>>()
     }
+}
+
+#[test]
+fn test_a_spheres_default_transformation() {
+    let s = Sphere::new();
+    assert_eq!(s.transform, IDENTITY_MATRIX4);
+}
+
+#[test]
+fn test_changing_a_spheres_transformation() {
+    let mut s = Sphere::new();
+    let t = Matrix4::translation(2.0, 3.0, 4.0);
+    s.transform = t;
+    assert_eq!(s.transform, t);
 }
 
 pub struct Ray {
@@ -29,9 +51,10 @@ impl Ray {
     }
 
     pub fn intersect(&self, sphere: Sphere) -> Vec<Intersection> {
-        let sphere_to_ray = self.origin - Tuple::point(0.0, 0.0, 0.0);
-        let a = self.direction.dot(self.direction);
-        let b = 2.0 * self.direction.dot(sphere_to_ray);
+        let ray = self.transform(sphere.transform.inverse());
+        let sphere_to_ray = ray.origin - Tuple::point(0.0, 0.0, 0.0);
+        let a = ray.direction.dot(ray.direction);
+        let b = 2.0 * ray.direction.dot(sphere_to_ray);
         let c = sphere_to_ray.dot(sphere_to_ray) - 1.0;
         let discriminant = b * b - 4.0 * a * c;
         if discriminant < 0.0 {
@@ -76,7 +99,7 @@ fn test_computing_a_point_from_a_distance() {
 fn test_a_ray_intersects_a_sphere_at_two_points() {
     let r =
         Ray::new(Tuple::point(0.0, 0.0, -5.0), Tuple::vector(0.0, 0.0, 1.0));
-    let s = Sphere {};
+    let s = Sphere::new();
     let xs = r.intersect(s);
     assert_eq!(xs.len(), 2);
     assert_eq!(xs[0].t, 4.0);
@@ -87,7 +110,7 @@ fn test_a_ray_intersects_a_sphere_at_two_points() {
 fn test_a_ray_intersects_a_sphere_at_a_tangent() {
     let r =
         Ray::new(Tuple::point(0.0, 1.0, -5.0), Tuple::vector(0.0, 0.0, 1.0));
-    let s = Sphere {};
+    let s = Sphere::new();
     let xs = r.intersect(s);
     assert_eq!(xs.len(), 2);
     assert_eq!(xs[0].t, 5.0);
@@ -98,7 +121,7 @@ fn test_a_ray_intersects_a_sphere_at_a_tangent() {
 fn test_a_ray_misses_a_sphere() {
     let r =
         Ray::new(Tuple::point(0.0, 2.0, -5.0), Tuple::vector(0.0, 0.0, 1.0));
-    let s = Sphere {};
+    let s = Sphere::new();
     let xs = r.intersect(s);
     assert_eq!(xs.len(), 0);
 }
@@ -106,7 +129,7 @@ fn test_a_ray_misses_a_sphere() {
 #[test]
 fn test_a_ray_originates_inside_a_sphere() {
     let r = Ray::new(Tuple::point(0.0, 0.0, 0.0), Tuple::vector(0.0, 0.0, 1.0));
-    let s = Sphere {};
+    let s = Sphere::new();
     let xs = r.intersect(s);
     assert_eq!(xs.len(), 2);
     assert_eq!(xs[0].t, -1.0);
@@ -116,7 +139,7 @@ fn test_a_ray_originates_inside_a_sphere() {
 #[test]
 fn test_a_sphere_is_behind_a_ray() {
     let r = Ray::new(Tuple::point(0.0, 0.0, 5.0), Tuple::vector(0.0, 0.0, 1.0));
-    let s = Sphere {};
+    let s = Sphere::new();
     let xs = r.intersect(s);
     assert_eq!(xs.len(), 2);
     assert_eq!(xs[0].t, -6.0);
@@ -127,7 +150,7 @@ fn test_a_sphere_is_behind_a_ray() {
 fn test_intersect_sets_the_object_on_the_intersection() {
     let r =
         Ray::new(Tuple::point(0.0, 0.0, -5.0), Tuple::vector(0.0, 0.0, 1.0));
-    let s = Sphere {};
+    let s = Sphere::new();
     let xs = r.intersect(s);
     assert_eq!(xs.len(), 2);
     assert_eq!(xs[0].object, s.clone());
@@ -150,6 +173,28 @@ fn test_scaling_a_ray() {
     let r2 = r.transform(m);
     assert_eq!(r2.origin, Tuple::point(2.0, 6.0, 12.0));
     assert_eq!(r2.direction, Tuple::vector(0.0, 3.0, 0.0));
+}
+
+#[test]
+fn test_intersecting_a_scaled_sphere_with_a_ray() {
+    let r =
+        Ray::new(Tuple::point(0.0, 0.0, -5.0), Tuple::vector(0.0, 0.0, 1.0));
+    let mut s = Sphere::new();
+    s.transform = Matrix4::scaling(2.0, 2.0, 2.0);
+    let xs = r.intersect(s);
+    assert_eq!(xs.len(), 2);
+    assert_eq!(xs[0].t, 3.0);
+    assert_eq!(xs[1].t, 7.0);
+}
+
+#[test]
+fn test_intersecting_a_translated_sphere_with_a_ray() {
+    let r =
+        Ray::new(Tuple::point(0.0, 0.0, -5.0), Tuple::vector(0.0, 0.0, 1.0));
+    let mut s = Sphere::new();
+    s.transform = Matrix4::translation(5.0, 0.0, 0.0);
+    let xs = r.intersect(s);
+    assert_eq!(xs.len(), 0);
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -206,7 +251,7 @@ pub fn hit(intersections: Vec<Intersection>) -> Option<Intersection> {
 
 #[test]
 fn test_an_intersection_encapsulates_t_and_object() {
-    let s = Sphere {};
+    let s = Sphere::new();
     let i = Intersection::new(3.5, s.clone());
     assert_eq!(i.t, 3.5);
     assert_eq!(i.object, s);
@@ -214,7 +259,7 @@ fn test_an_intersection_encapsulates_t_and_object() {
 
 #[test]
 fn test_aggregating_intersections() {
-    let s = Sphere {};
+    let s = Sphere::new();
     let xs = s.intersections(vec![1.0, 2.0]);
     assert_eq!(xs.len(), 2);
     assert_eq!(xs[0].t, 1.0);
@@ -223,7 +268,7 @@ fn test_aggregating_intersections() {
 
 #[test]
 fn test_the_hit_when_all_intersections_have_positive_t() {
-    let s = Sphere {};
+    let s = Sphere::new();
     let xs = s.intersections(vec![1.0, 2.0]);
     let h = hit(xs);
     assert!(h.is_some());
@@ -232,7 +277,7 @@ fn test_the_hit_when_all_intersections_have_positive_t() {
 
 #[test]
 fn test_the_hit_when_some_intersections_have_negative_t() {
-    let s = Sphere {};
+    let s = Sphere::new();
     let xs = s.intersections(vec![1.0, -1.0]);
     let h = hit(xs);
     assert!(h.is_some());
@@ -241,7 +286,7 @@ fn test_the_hit_when_some_intersections_have_negative_t() {
 
 #[test]
 fn test_the_hit_when_all_intersections_have_negative_t() {
-    let s = Sphere {};
+    let s = Sphere::new();
     let xs = s.intersections(vec![-2.0, -1.0]);
     let h = hit(xs);
     assert!(h.is_none());
@@ -249,7 +294,7 @@ fn test_the_hit_when_all_intersections_have_negative_t() {
 
 #[test]
 fn test_the_hit_is_always_the_lowest_non_negative_intersection() {
-    let s = Sphere {};
+    let s = Sphere::new();
     let xs = s.intersections(vec![5.0, 7.0, -3.0, 2.0]);
     let h = hit(xs);
     assert!(h.is_some());

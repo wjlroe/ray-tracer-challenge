@@ -183,6 +183,8 @@ impl PartialEq for Matrix4 {
     }
 }
 
+impl Eq for Matrix4 {}
+
 impl fmt::Debug for Matrix4 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         for row in 0..4 {
