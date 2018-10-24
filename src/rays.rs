@@ -1,6 +1,15 @@
 use tuples::Tuple;
 
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub struct Sphere {}
+
+impl Sphere {
+    pub fn intersections(&self, ts: Vec<f32>) -> Vec<Intersection> {
+        ts.iter()
+            .map(|t| Intersection::new(*t, self.clone()))
+            .collect::<Vec<_>>()
+    }
+}
 
 pub struct Ray {
     pub origin: Tuple,
@@ -16,7 +25,7 @@ impl Ray {
         self.origin + self.direction * t
     }
 
-    pub fn intersect(&self, _sphere: Sphere) -> Vec<f32> {
+    pub fn intersect(&self, sphere: Sphere) -> Vec<Intersection> {
         let sphere_to_ray = self.origin - Tuple::point(0.0, 0.0, 0.0);
         let a = self.direction.dot(self.direction);
         let b = 2.0 * self.direction.dot(sphere_to_ray);
@@ -27,10 +36,12 @@ impl Ray {
         } else {
             let t1 = (-b - discriminant.sqrt()) / (2.0 * a);
             let t2 = (-b + discriminant.sqrt()) / (2.0 * a);
+            let i1 = Intersection::new(t1, sphere.clone());
+            let i2 = Intersection::new(t2, sphere.clone());
             if t1 > t2 {
-                vec![t2, t1]
+                vec![i2, i1]
             } else {
-                vec![t1, t2]
+                vec![i1, i2]
             }
         }
     }
@@ -61,8 +72,8 @@ fn test_a_ray_intersects_a_sphere_at_two_points() {
     let s = Sphere {};
     let xs = r.intersect(s);
     assert_eq!(xs.len(), 2);
-    assert_eq!(xs[0], 4.0);
-    assert_eq!(xs[1], 6.0);
+    assert_eq!(xs[0].t, 4.0);
+    assert_eq!(xs[1].t, 6.0);
 }
 
 #[test]
@@ -72,8 +83,8 @@ fn test_a_ray_intersects_a_sphere_at_a_tangent() {
     let s = Sphere {};
     let xs = r.intersect(s);
     assert_eq!(xs.len(), 2);
-    assert_eq!(xs[0], 5.0);
-    assert_eq!(xs[1], 5.0);
+    assert_eq!(xs[0].t, 5.0);
+    assert_eq!(xs[1].t, 5.0);
 }
 
 #[test]
@@ -91,8 +102,8 @@ fn test_a_ray_originates_inside_a_sphere() {
     let s = Sphere {};
     let xs = r.intersect(s);
     assert_eq!(xs.len(), 2);
-    assert_eq!(xs[0], -1.0);
-    assert_eq!(xs[1], 1.0);
+    assert_eq!(xs[0].t, -1.0);
+    assert_eq!(xs[1].t, 1.0);
 }
 
 #[test]
@@ -101,6 +112,46 @@ fn test_a_sphere_is_behind_a_ray() {
     let s = Sphere {};
     let xs = r.intersect(s);
     assert_eq!(xs.len(), 2);
-    assert_eq!(xs[0], -6.0);
-    assert_eq!(xs[1], -4.0);
+    assert_eq!(xs[0].t, -6.0);
+    assert_eq!(xs[1].t, -4.0);
+}
+
+#[test]
+fn test_intersect_sets_the_object_on_the_intersection() {
+    let r =
+        Ray::new(Tuple::point(0.0, 0.0, -5.0), Tuple::vector(0.0, 0.0, 1.0));
+    let s = Sphere {};
+    let xs = r.intersect(s);
+    assert_eq!(xs.len(), 2);
+    assert_eq!(xs[0].object, s.clone());
+    assert_eq!(xs[1].object, s.clone());
+}
+
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub struct Intersection {
+    pub t: f32,
+    pub object: Sphere,
+}
+
+impl Intersection {
+    pub fn new(t: f32, object: Sphere) -> Self {
+        Intersection { t, object }
+    }
+}
+
+#[test]
+fn test_an_intersection_encapsulates_t_and_object() {
+    let s = Sphere {};
+    let i = Intersection::new(3.5, s.clone());
+    assert_eq!(i.t, 3.5);
+    assert_eq!(i.object, s);
+}
+
+#[test]
+fn test_aggregating_intersections() {
+    let s = Sphere {};
+    let xs = s.intersections(vec![1.0, 2.0]);
+    assert_eq!(xs.len(), 2);
+    assert_eq!(xs[0].t, 1.0);
+    assert_eq!(xs[1].t, 2.0);
 }
