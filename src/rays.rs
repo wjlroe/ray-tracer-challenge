@@ -1,4 +1,5 @@
 use super::EPSILON;
+use matrices::Matrix4;
 use std::cmp;
 use tuples::Tuple;
 
@@ -46,6 +47,10 @@ impl Ray {
                 vec![i1, i2]
             }
         }
+    }
+
+    pub fn transform(&self, m: Matrix4) -> Ray {
+        Ray::new(m * self.origin, m * self.direction)
     }
 }
 
@@ -127,6 +132,24 @@ fn test_intersect_sets_the_object_on_the_intersection() {
     assert_eq!(xs.len(), 2);
     assert_eq!(xs[0].object, s.clone());
     assert_eq!(xs[1].object, s.clone());
+}
+
+#[test]
+fn test_translating_a_ray() {
+    let r = Ray::new(Tuple::point(1.0, 2.0, 3.0), Tuple::vector(0.0, 1.0, 0.0));
+    let m = Matrix4::translation(3.0, 4.0, 5.0);
+    let r2 = r.transform(m);
+    assert_eq!(r2.origin, Tuple::point(4.0, 6.0, 8.0));
+    assert_eq!(r2.direction, Tuple::vector(0.0, 1.0, 0.0));
+}
+
+#[test]
+fn test_scaling_a_ray() {
+    let r = Ray::new(Tuple::point(1.0, 2.0, 3.0), Tuple::vector(0.0, 1.0, 0.0));
+    let m = Matrix4::scaling(2.0, 3.0, 4.0);
+    let r2 = r.transform(m);
+    assert_eq!(r2.origin, Tuple::point(2.0, 6.0, 12.0));
+    assert_eq!(r2.direction, Tuple::vector(0.0, 3.0, 0.0));
 }
 
 #[derive(Copy, Clone, Debug)]
