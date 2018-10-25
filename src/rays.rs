@@ -301,8 +301,13 @@ fn test_the_hit_is_always_the_lowest_non_negative_intersection() {
     assert_eq!(h.unwrap().t, 2.0);
 }
 
-pub fn normal_at(_s: Sphere, point: Tuple) -> Tuple {
-    (point - Tuple::point(0.0, 0.0, 0.0)).normalize()
+pub fn normal_at(sphere: Sphere, point: Tuple) -> Tuple {
+    let object_point = sphere.transform.inverse() * point;
+    let object_normal = object_point - Tuple::point(0.0, 0.0, 0.0);
+    let mut world_normal =
+        sphere.transform.inverse().transpose() * object_normal;
+    world_normal.w = 0.0;
+    world_normal.normalize()
 }
 
 #[test]
@@ -347,4 +352,21 @@ fn test_the_normal_is_a_normalized_vector() {
         Tuple::point(3f32.sqrt() / 3.0, 3f32.sqrt() / 3.0, 3f32.sqrt() / 3.0),
     );
     assert_eq!(n, n.normalize());
+}
+
+#[test]
+fn test_computing_the_normal_on_a_translated_sphere() {
+    let mut s = Sphere::new();
+    s.transform = Matrix4::translation(0.0, 1.0, 0.0);
+    let n = normal_at(s, Tuple::point(0.0, 1.70711, -0.70711));
+    assert_eq!(n, Tuple::vector(0.0, 0.70711, -0.70711))
+}
+
+#[test]
+fn test_computing_the_normal_on_a_scaled_sphere() {
+    let mut s = Sphere::new();
+    s.transform = Matrix4::scaling(1.0, 0.5, 1.0);
+    let n =
+        normal_at(s, Tuple::point(0.0, 2f32.sqrt() / 2.0, -2f32.sqrt() / 2.0));
+    assert_eq!(n, Tuple::vector(0.0, 0.97014, -0.24254));
 }
