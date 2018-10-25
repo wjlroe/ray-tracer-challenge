@@ -300,3 +300,51 @@ fn test_the_hit_is_always_the_lowest_non_negative_intersection() {
     assert!(h.is_some());
     assert_eq!(h.unwrap().t, 2.0);
 }
+
+pub fn normal_at(_s: Sphere, point: Tuple) -> Tuple {
+    (point - Tuple::point(0.0, 0.0, 0.0)).normalize()
+}
+
+#[test]
+fn test_the_normal_on_a_sphere_at_a_point_on_the_x_axis() {
+    let s = Sphere::new();
+    let n = normal_at(s, Tuple::point(1.0, 0.0, 0.0));
+    assert_eq!(n, Tuple::vector(1.0, 0.0, 0.0));
+}
+
+#[test]
+fn test_the_normal_on_a_sphere_at_a_point_on_the_y_axis() {
+    let s = Sphere::new();
+    let n = normal_at(s, Tuple::point(0.0, 1.0, 0.0));
+    assert_eq!(n, Tuple::vector(0.0, 1.0, 0.0));
+}
+
+#[test]
+fn test_the_normal_on_a_sphere_at_a_point_onn_the_z_axis() {
+    let s = Sphere::new();
+    let n = normal_at(s, Tuple::point(0.0, 0.0, 1.0));
+    assert_eq!(n, Tuple::vector(0.0, 0.0, 1.0));
+}
+
+#[test]
+fn test_the_normal_on_a_sphere_at_a_non_axial_point() {
+    let s = Sphere::new();
+    let n = normal_at(
+        s,
+        Tuple::point(3f32.sqrt() / 3.0, 3f32.sqrt() / 3.0, 3f32.sqrt() / 3.0),
+    );
+    assert_eq!(
+        n,
+        Tuple::vector(3f32.sqrt() / 3.0, 3f32.sqrt() / 3.0, 3f32.sqrt() / 3.0)
+    )
+}
+
+#[test]
+fn test_the_normal_is_a_normalized_vector() {
+    let s = Sphere::new();
+    let n = normal_at(
+        s,
+        Tuple::point(3f32.sqrt() / 3.0, 3f32.sqrt() / 3.0, 3f32.sqrt() / 3.0),
+    );
+    assert_eq!(n, n.normalize());
+}
