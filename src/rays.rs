@@ -5,7 +5,7 @@ use tuples::Tuple;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub struct Sphere {
-    transform: Matrix4,
+    pub transform: Matrix4,
 }
 
 impl Sphere {
