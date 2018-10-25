@@ -370,3 +370,23 @@ fn test_computing_the_normal_on_a_scaled_sphere() {
         normal_at(s, Tuple::point(0.0, 2f32.sqrt() / 2.0, -2f32.sqrt() / 2.0));
     assert_eq!(n, Tuple::vector(0.0, 0.97014, -0.24254));
 }
+
+pub fn reflect(in_v: Tuple, normal: Tuple) -> Tuple {
+    in_v - normal * 2.0 * in_v.dot(normal)
+}
+
+#[test]
+fn test_reflecting_a_vector_approaching_at_45_degrees() {
+    let v = Tuple::vector(1.0, -1.0, 0.0);
+    let n = Tuple::vector(0.0, 1.0, 0.0);
+    let r = reflect(v, n);
+    assert_eq!(r, Tuple::vector(1.0, 1.0, 0.0));
+}
+
+#[test]
+fn test_reflecting_a_vector_off_a_slanted_surface() {
+    let v = Tuple::vector(0.0, -1.0, 0.0);
+    let n = Tuple::vector(2f32.sqrt() / 2.0, 2f32.sqrt() / 2.0, 0.0);
+    let r = reflect(v, n);
+    assert_eq!(r, Tuple::vector(1.0, 0.0, 0.0));
+}
