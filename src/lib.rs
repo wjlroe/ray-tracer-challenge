@@ -5,4 +5,8 @@ pub mod matrices;
 pub mod rays;
 pub mod tuples;
 
-pub const EPSILON: f32 = 0.00001;
+const EPSILON: f32 = 0.00001;
+
+pub fn float_eq(left: f32, right: f32) -> bool {
+    (left - right).abs() < EPSILON
+}

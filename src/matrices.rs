@@ -1,4 +1,4 @@
-use super::EPSILON;
+use super::float_eq;
 use std::default::Default;
 use std::fmt;
 use std::ops;
@@ -13,8 +13,7 @@ impl PartialEq for Matrix2 {
     fn eq(&self, other: &Matrix2) -> bool {
         for row in 0..2 {
             for col in 0..2 {
-                if (self.rows[row][col] - other.rows[row][col]).abs() > EPSILON
-                {
+                if !float_eq(self.rows[row][col], other.rows[row][col]) {
                     return false;
                 }
             }
@@ -57,8 +56,7 @@ impl PartialEq for Matrix3 {
     fn eq(&self, other: &Matrix3) -> bool {
         for row in 0..3 {
             for col in 0..3 {
-                if (self.rows[row][col] - other.rows[row][col]).abs() > EPSILON
-                {
+                if !float_eq(self.rows[row][col], other.rows[row][col]) {
                     return false;
                 }
             }
@@ -173,8 +171,7 @@ impl PartialEq for Matrix4 {
     fn eq(&self, other: &Matrix4) -> bool {
         for row in 0..4 {
             for col in 0..4 {
-                if (self.rows[row][col] - other.rows[row][col]).abs() > EPSILON
-                {
+                if !float_eq(self.rows[row][col], other.rows[row][col]) {
                     return false;
                 }
             }

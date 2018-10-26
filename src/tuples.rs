@@ -1,4 +1,4 @@
-use super::EPSILON;
+use super::float_eq;
 use std::fmt;
 use std::ops;
 
@@ -163,7 +163,7 @@ fn test_normalizing_vectors() {
     {
         let v = Tuple::vector(1.0, 2.0, 3.0);
         let norm = v.normalize();
-        assert!((norm.magnitude() - 1.0).abs() < EPSILON);
+        assert!(float_eq(norm.magnitude(), 1.0));
     }
 }
 
@@ -171,7 +171,7 @@ fn test_normalizing_vectors() {
 fn test_dot_product_of_two_vectors() {
     let a = Tuple::vector(1.0, 2.0, 3.0);
     let b = Tuple::vector(2.0, 3.0, 4.0);
-    assert!((a.dot(b) - 20.0).abs() < EPSILON);
+    assert!(float_eq(a.dot(b), 20.0));
 }
 
 #[test]
@@ -348,10 +348,10 @@ fn test_dividing_a_tuple_by_a_scalar() {
 
 impl PartialEq for Tuple {
     fn eq(&self, other: &Tuple) -> bool {
-        (self.x - other.x).abs() < EPSILON
-            && (self.y - other.y).abs() < EPSILON
-            && (self.z - other.z).abs() < EPSILON
-            && (self.w - other.w).abs() < EPSILON
+        float_eq(self.x, other.x)
+            && float_eq(self.y, other.y)
+            && float_eq(self.z, other.z)
+            && float_eq(self.w, other.w)
     }
 }
 

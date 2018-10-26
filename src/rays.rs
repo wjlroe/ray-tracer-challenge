@@ -1,17 +1,80 @@
-use super::EPSILON;
+use super::float_eq;
 use matrices::{Matrix4, IDENTITY_MATRIX4};
 use std::cmp;
 use tuples::Tuple;
 
+#[derive(Copy, Clone, Debug)]
+pub struct Material {
+    pub color: Tuple,
+    pub ambient: f32,
+    pub diffuse: f32,
+    pub specular: f32,
+    pub shininess: f32,
+}
+
+impl Material {
+    pub fn new(
+        color: Tuple,
+        ambient: f32,
+        diffuse: f32,
+        specular: f32,
+        shininess: f32,
+    ) -> Self {
+        Material {
+            color,
+            ambient,
+            diffuse,
+            specular,
+            shininess,
+        }
+    }
+}
+
+impl Eq for Material {}
+
+impl PartialEq for Material {
+    fn eq(&self, other: &Material) -> bool {
+        self.color == other.color
+            && float_eq(self.ambient, other.ambient)
+            && float_eq(self.diffuse, other.diffuse)
+            && float_eq(self.specular, other.specular)
+            && float_eq(self.shininess, other.shininess)
+    }
+}
+
+impl Default for Material {
+    fn default() -> Self {
+        Material {
+            color: Tuple::color(1.0, 1.0, 1.0),
+            ambient: 0.1,
+            diffuse: 0.9,
+            specular: 0.9,
+            shininess: 200.0,
+        }
+    }
+}
+
+#[test]
+fn test_the_default_material() {
+    let m = Material::default();
+    assert_eq!(m.color, Tuple::color(1.0, 1.0, 1.0));
+    assert_eq!(m.ambient, 0.1);
+    assert_eq!(m.diffuse, 0.9);
+    assert_eq!(m.specular, 0.9);
+    assert_eq!(m.shininess, 200.0);
+}
+
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub struct Sphere {
     pub transform: Matrix4,
+    pub material: Material,
 }
 
 impl Sphere {
     pub fn new() -> Self {
         Sphere {
             transform: IDENTITY_MATRIX4,
+            material: Material::default(),
         }
     }
 
@@ -34,6 +97,20 @@ fn test_changing_a_spheres_transformation() {
     let t = Matrix4::translation(2.0, 3.0, 4.0);
     s.transform = t;
     assert_eq!(s.transform, t);
+}
+
+#[test]
+fn test_a_sphere_has_a_default_material() {
+    let s = Sphere::new();
+    assert_eq!(s.material, Material::default());
+}
+
+#[test]
+fn test_a_sphere_may_be_assigned_a_material() {
+    let mut s = Sphere::new();
+    let m = Material::new(Tuple::color(2.0, 0.0, 5.0), 2.0, 3.0, 4.0, 5.0);
+    s.material = m;
+    assert_eq!(s.material, m);
 }
 
 pub struct Ray {
@@ -205,7 +282,7 @@ pub struct Intersection {
 
 impl PartialEq for Intersection {
     fn eq(&self, other: &Intersection) -> bool {
-        (self.t - other.t).abs() < EPSILON && self.object == other.object
+        float_eq(self.t, other.t) && self.object == other.object
     }
 }
 
@@ -389,4 +466,27 @@ fn test_reflecting_a_vector_off_a_slanted_surface() {
     let n = Tuple::vector(2f32.sqrt() / 2.0, 2f32.sqrt() / 2.0, 0.0);
     let r = reflect(v, n);
     assert_eq!(r, Tuple::vector(1.0, 0.0, 0.0));
+}
+
+pub struct PointLight {
+    pub position: Tuple,
+    pub intensity: Tuple,
+}
+
+impl PointLight {
+    pub fn new(position: Tuple, intensity: Tuple) -> Self {
+        PointLight {
+            position,
+            intensity,
+        }
+    }
+}
+
+#[test]
+fn test_a_point_light_has_a_position_and_intensity() {
+    let intensity = Tuple::color(1.0, 1.0, 1.0);
+    let position = Tuple::point(0.0, 0.0, 0.0);
+    let light = PointLight::new(position, intensity);
+    assert_eq!(light.intensity, intensity);
+    assert_eq!(light.position, position);
 }
