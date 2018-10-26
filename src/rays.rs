@@ -468,7 +468,7 @@ fn test_reflecting_a_vector_off_a_slanted_surface() {
     assert_eq!(r, Tuple::vector(1.0, 0.0, 0.0));
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub struct PointLight {
     pub position: Tuple,
     pub intensity: Tuple,
