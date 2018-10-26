@@ -1,5 +1,5 @@
 use matrices::Matrix4;
-use rays::{PointLight, Sphere};
+use rays::{Intersection, PointLight, Ray, Sphere};
 use tuples::Tuple;
 
 pub struct World {
@@ -58,4 +58,27 @@ fn test_the_default_world() {
     assert_eq!(world.light_source, Some(light));
     assert!(world.objects.contains(&s1));
     assert!(world.objects.contains(&s2));
+}
+
+pub fn intersect_world(world: World, ray: Ray) -> Vec<Intersection> {
+    let mut intersections = world
+        .objects
+        .iter()
+        .flat_map(|object| ray.intersect(*object))
+        .collect::<Vec<Intersection>>();
+    intersections.sort_unstable();
+    intersections
+}
+
+#[test]
+fn test_intersect_a_world_with_a_ray() {
+    let world = World::default();
+    let ray =
+        Ray::new(Tuple::point(0.0, 0.0, -5.0), Tuple::vector(0.0, 0.0, 1.0));
+    let xs = intersect_world(world, ray);
+    assert_eq!(xs.len(), 4);
+    assert_eq!(xs[0].t, 4.0);
+    assert_eq!(xs[1].t, 4.5);
+    assert_eq!(xs[2].t, 5.5);
+    assert_eq!(xs[3].t, 6.0);
 }
