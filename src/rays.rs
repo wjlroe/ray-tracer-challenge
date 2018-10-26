@@ -499,8 +499,8 @@ pub fn lighting(
     normalv: Tuple,
 ) -> Tuple {
     let black = Tuple::color(0.0, 0.0, 0.0);
-    let mut diffuse = black;
-    let mut specular = black;
+    let diffuse;
+    let specular;
     let effective_color = material.color * light.intensity;
     let lightv = (light.position - point).normalize();
     let ambient = effective_color * material.ambient;
