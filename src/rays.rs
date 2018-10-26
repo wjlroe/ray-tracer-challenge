@@ -318,7 +318,7 @@ impl Intersection {
     }
 }
 
-pub fn hit(intersections: Vec<Intersection>) -> Option<Intersection> {
+pub fn find_hit(intersections: Vec<Intersection>) -> Option<Intersection> {
     intersections
         .iter()
         .filter(|inter| inter.t > 0.0)
@@ -347,7 +347,7 @@ fn test_aggregating_intersections() {
 fn test_the_hit_when_all_intersections_have_positive_t() {
     let s = Sphere::new();
     let xs = s.intersections(vec![1.0, 2.0]);
-    let h = hit(xs);
+    let h = find_hit(xs);
     assert!(h.is_some());
     assert_eq!(h.unwrap().t, 1.0);
 }
@@ -356,7 +356,7 @@ fn test_the_hit_when_all_intersections_have_positive_t() {
 fn test_the_hit_when_some_intersections_have_negative_t() {
     let s = Sphere::new();
     let xs = s.intersections(vec![1.0, -1.0]);
-    let h = hit(xs);
+    let h = find_hit(xs);
     assert!(h.is_some());
     assert_eq!(h.unwrap().t, 1.0);
 }
@@ -365,7 +365,7 @@ fn test_the_hit_when_some_intersections_have_negative_t() {
 fn test_the_hit_when_all_intersections_have_negative_t() {
     let s = Sphere::new();
     let xs = s.intersections(vec![-2.0, -1.0]);
-    let h = hit(xs);
+    let h = find_hit(xs);
     assert!(h.is_none());
 }
 
@@ -373,7 +373,7 @@ fn test_the_hit_when_all_intersections_have_negative_t() {
 fn test_the_hit_is_always_the_lowest_non_negative_intersection() {
     let s = Sphere::new();
     let xs = s.intersections(vec![5.0, 7.0, -3.0, 2.0]);
-    let h = hit(xs);
+    let h = find_hit(xs);
     assert!(h.is_some());
     assert_eq!(h.unwrap().t, 2.0);
 }
@@ -468,6 +468,7 @@ fn test_reflecting_a_vector_off_a_slanted_surface() {
     assert_eq!(r, Tuple::vector(1.0, 0.0, 0.0));
 }
 
+#[derive(Copy, Clone, Debug)]
 pub struct PointLight {
     pub position: Tuple,
     pub intensity: Tuple,
