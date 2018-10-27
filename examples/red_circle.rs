@@ -1,9 +1,10 @@
 extern crate ray_tracer_challenge;
 
 use ray_tracer_challenge::canvas::Canvas;
-use ray_tracer_challenge::rays::{
-    find_hit, lighting, normal_at, Material, PointLight, Ray, Sphere,
-};
+use ray_tracer_challenge::intersections::find_hit;
+use ray_tracer_challenge::materials::Material;
+use ray_tracer_challenge::rays::{lighting, normal_at, PointLight, Ray};
+use ray_tracer_challenge::spheres::Sphere;
 use ray_tracer_challenge::tuples::Tuple;
 use std::fs::File;
 use std::io::prelude::*;

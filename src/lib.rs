@@ -1,8 +1,11 @@
 extern crate num;
 
 pub mod canvas;
+pub mod intersections;
+pub mod materials;
 pub mod matrices;
 pub mod rays;
+pub mod spheres;
 pub mod tuples;
 pub mod world;
 

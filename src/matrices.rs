@@ -473,7 +473,7 @@ impl Matrix4 {
     }
 }
 
-pub const IDENTITY_MATRIX4: Matrix4 = Matrix4 {
+const IDENTITY_MATRIX4: Matrix4 = Matrix4 {
     rows: [
         [1.0, 0.0, 0.0, 0.0],
         [0.0, 1.0, 0.0, 0.0],
@@ -859,4 +859,16 @@ fn test_chained_transformations_must_be_applied_in_reverse_order() {
     let c = Matrix4::translation(10.0, 5.0, 7.0);
     let t = c * b * a;
     assert_eq!(t * p, Tuple::point(15.0, 0.0, 7.0));
+}
+
+impl Default for Matrix4 {
+    fn default() -> Self {
+        IDENTITY_MATRIX4
+    }
+}
+
+#[test]
+fn test_default_matrix4_is_identity() {
+    let default = Matrix4::default();
+    assert_eq!(default, IDENTITY_MATRIX4);
 }
