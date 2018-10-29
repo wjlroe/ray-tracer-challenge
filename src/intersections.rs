@@ -1,5 +1,5 @@
 use super::float_eq;
-use rays::Ray;
+use rays::{lighting, Ray};
 use spheres::Sphere;
 use std::cmp;
 use tuples::Tuple;
@@ -73,6 +73,16 @@ impl Intersection {
             self.normalv = Some(normalv);
         }
     }
+
+    pub fn shade_hit(self, world: World) -> Tuple {
+        lighting(
+            self.object.material,
+            world.light_source.unwrap(),
+            self.point.unwrap(),
+            self.eyev.unwrap(),
+            self.normalv.unwrap(),
+        )
+    }
 }
 
 #[test]
@@ -108,6 +118,36 @@ fn test_an_intersection_occurs_on_the_inside() {
     assert_eq!(hit.eyev, Some(Tuple::vector(0.0, 0.0, -1.0)));
     assert_eq!(hit.inside, Some(true));
     assert_eq!(hit.normalv, Some(Tuple::vector(0.0, 0.0, -1.0)));
+}
+
+#[test]
+fn test_shading_an_intersection() {
+    let world = World::default();
+    let ray =
+        Ray::new(Tuple::point(0.0, 0.0, -5.0), Tuple::vector(0.0, 0.0, 1.0));
+    let shape = world.objects[0];
+    let mut hit = Intersection::new(4.0, shape);
+    hit.prepare_hit(ray);
+    let c = hit.shade_hit(world);
+    assert_eq!(c, Tuple::color(0.38066, 0.47583, 0.2855));
+}
+
+#[test]
+fn test_shading_an_intersection_from_the_inside() {
+    use rays::PointLight;
+
+    let mut world = World::default();
+    world.light_source = Some(PointLight::new(
+        Tuple::point(0.0, 0.25, 0.0),
+        Tuple::color(1.0, 1.0, 1.0),
+    ));
+    let ray =
+        Ray::new(Tuple::point(0.0, 0.0, 0.0), Tuple::vector(0.0, 0.0, 1.0));
+    let shape = world.objects[1];
+    let mut hit = Intersection::new(0.5, shape);
+    hit.prepare_hit(ray);
+    let c = hit.shade_hit(world);
+    assert_eq!(c, Tuple::color(0.90498, 0.90498, 0.90498));
 }
 
 pub fn find_hit(intersections: Vec<Intersection>) -> Option<Intersection> {
