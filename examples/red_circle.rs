@@ -3,7 +3,7 @@ extern crate ray_tracer_challenge;
 use ray_tracer_challenge::canvas::Canvas;
 use ray_tracer_challenge::intersections::find_hit;
 use ray_tracer_challenge::materials::Material;
-use ray_tracer_challenge::rays::{lighting, normal_at, PointLight, Ray};
+use ray_tracer_challenge::rays::{lighting, PointLight, Ray};
 use ray_tracer_challenge::spheres::Sphere;
 use ray_tracer_challenge::tuples::Tuple;
 use std::fs::File;
@@ -36,7 +36,7 @@ fn main() -> std::io::Result<()> {
             let xs = r.intersect(sphere);
             if let Some(hit) = find_hit(xs) {
                 let point = r.position(hit.t);
-                let normal = normal_at(hit.object, point);
+                let normal = hit.object.normal_at(point);
                 let eye = -r.direction;
                 let color =
                     lighting(hit.object.material, light, point, eye, normal);

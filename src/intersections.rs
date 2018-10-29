@@ -2,7 +2,6 @@ use super::float_eq;
 use rays::Ray;
 use spheres::Sphere;
 use std::cmp;
-#[cfg(test)]
 use tuples::Tuple;
 use world::World;
 
@@ -10,6 +9,10 @@ use world::World;
 pub struct Intersection {
     pub t: f32,
     pub object: Sphere,
+    pub point: Option<Tuple>,
+    pub eyev: Option<Tuple>,
+    pub normalv: Option<Tuple>,
+    pub inside: Option<bool>,
 }
 
 impl PartialEq for Intersection {
@@ -46,8 +49,65 @@ impl cmp::Ord for Intersection {
 
 impl Intersection {
     pub fn new(t: f32, object: Sphere) -> Self {
-        Intersection { t, object }
+        Intersection {
+            t,
+            object,
+            eyev: None,
+            normalv: None,
+            point: None,
+            inside: None,
+        }
     }
+
+    pub fn prepare_hit(&mut self, ray: Ray) {
+        let position = ray.position(self.t);
+        self.point = Some(position);
+        let eyev = -ray.direction;
+        self.eyev = Some(eyev);
+        let normalv = self.object.normal_at(position);
+        if normalv.dot(eyev) < 0.0 {
+            self.inside = Some(true);
+            self.normalv = Some(-normalv)
+        } else {
+            self.inside = Some(false);
+            self.normalv = Some(normalv);
+        }
+    }
+}
+
+#[test]
+fn test_precomputing_the_state_of_an_intersection() {
+    let ray =
+        Ray::new(Tuple::point(0.0, 0.0, -5.0), Tuple::vector(0.0, 0.0, 1.0));
+    let shape = Sphere::new();
+    let mut hit = Intersection::new(4.0, shape);
+    hit.prepare_hit(ray);
+    assert_eq!(hit.point, Some(Tuple::point(0.0, 0.0, -1.0)));
+    assert_eq!(hit.eyev, Some(Tuple::vector(0.0, 0.0, -1.0)));
+    assert_eq!(hit.normalv, Some(Tuple::vector(0.0, 0.0, -1.0)));
+}
+
+#[test]
+fn test_an_intersection_occurs_on_the_outside() {
+    let ray =
+        Ray::new(Tuple::point(0.0, 0.0, -5.0), Tuple::vector(0.0, 0.0, 1.0));
+    let shape = Sphere::new();
+    let mut hit = Intersection::new(4.0, shape);
+    hit.prepare_hit(ray);
+    assert_eq!(hit.inside, Some(false));
+}
+
+#[test]
+fn test_an_intersection_occurs_on_the_inside() {
+    let ray =
+        Ray::new(Tuple::point(0.0, 0.0, 0.0), Tuple::vector(0.0, 0.0, 1.0));
+    let shape = Sphere::new();
+    let mut hit = Intersection::new(1.0, shape);
+    hit.prepare_hit(ray);
+    assert_eq!(hit.point, Some(Tuple::point(0.0, 0.0, 1.0)));
+    assert_eq!(hit.eyev, Some(Tuple::vector(0.0, 0.0, -1.0)));
+    assert_eq!(hit.inside, Some(true));
+    assert_eq!(hit.normalv, Some(Tuple::vector(0.0, 0.0, -1.0)));
 }
 
 pub fn find_hit(intersections: Vec<Intersection>) -> Option<Intersection> {
