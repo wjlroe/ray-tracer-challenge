@@ -1,5 +1,3 @@
-extern crate num;
-
 pub mod canvas;
 pub mod intersections;
 pub mod materials;
