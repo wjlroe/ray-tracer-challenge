@@ -59,7 +59,7 @@ impl Intersection {
         }
     }
 
-    pub fn prepare_hit(&mut self, ray: Ray) {
+    pub fn prepare_hit(&mut self, ray: &Ray) {
         let position = ray.position(self.t);
         self.point = Some(position);
         let eyev = -ray.direction;
@@ -74,7 +74,7 @@ impl Intersection {
         }
     }
 
-    pub fn shade_hit(self, world: World) -> Tuple {
+    pub fn shade_hit(self, world: &World) -> Tuple {
         lighting(
             self.object.material,
             world.light_source.unwrap(),
@@ -91,7 +91,7 @@ fn test_precomputing_the_state_of_an_intersection() {
         Ray::new(Tuple::point(0.0, 0.0, -5.0), Tuple::vector(0.0, 0.0, 1.0));
     let shape = Sphere::new();
     let mut hit = Intersection::new(4.0, shape);
-    hit.prepare_hit(ray);
+    hit.prepare_hit(&ray);
     assert_eq!(hit.point, Some(Tuple::point(0.0, 0.0, -1.0)));
     assert_eq!(hit.eyev, Some(Tuple::vector(0.0, 0.0, -1.0)));
     assert_eq!(hit.normalv, Some(Tuple::vector(0.0, 0.0, -1.0)));
@@ -103,7 +103,7 @@ fn test_an_intersection_occurs_on_the_outside() {
         Ray::new(Tuple::point(0.0, 0.0, -5.0), Tuple::vector(0.0, 0.0, 1.0));
     let shape = Sphere::new();
     let mut hit = Intersection::new(4.0, shape);
-    hit.prepare_hit(ray);
+    hit.prepare_hit(&ray);
     assert_eq!(hit.inside, Some(false));
 }
 
@@ -113,7 +113,7 @@ fn test_an_intersection_occurs_on_the_inside() {
         Ray::new(Tuple::point(0.0, 0.0, 0.0), Tuple::vector(0.0, 0.0, 1.0));
     let shape = Sphere::new();
     let mut hit = Intersection::new(1.0, shape);
-    hit.prepare_hit(ray);
+    hit.prepare_hit(&ray);
     assert_eq!(hit.point, Some(Tuple::point(0.0, 0.0, 1.0)));
     assert_eq!(hit.eyev, Some(Tuple::vector(0.0, 0.0, -1.0)));
     assert_eq!(hit.inside, Some(true));
@@ -127,8 +127,8 @@ fn test_shading_an_intersection() {
         Ray::new(Tuple::point(0.0, 0.0, -5.0), Tuple::vector(0.0, 0.0, 1.0));
     let shape = world.objects[0];
     let mut hit = Intersection::new(4.0, shape);
-    hit.prepare_hit(ray);
-    let c = hit.shade_hit(world);
+    hit.prepare_hit(&ray);
+    let c = hit.shade_hit(&world);
     assert_eq!(c, Tuple::color(0.38066, 0.47583, 0.2855));
 }
 
@@ -145,8 +145,8 @@ fn test_shading_an_intersection_from_the_inside() {
         Ray::new(Tuple::point(0.0, 0.0, 0.0), Tuple::vector(0.0, 0.0, 1.0));
     let shape = world.objects[1];
     let mut hit = Intersection::new(0.5, shape);
-    hit.prepare_hit(ray);
-    let c = hit.shade_hit(world);
+    hit.prepare_hit(&ray);
+    let c = hit.shade_hit(&world);
     assert_eq!(c, Tuple::color(0.90498, 0.90498, 0.90498));
 }
 
@@ -208,27 +208,4 @@ fn test_the_hit_is_always_the_lowest_non_negative_intersection() {
     let h = find_hit(xs);
     assert!(h.is_some());
     assert_eq!(h.unwrap().t, 2.0);
-}
-
-pub fn intersect_world(world: World, ray: Ray) -> Vec<Intersection> {
-    let mut intersections = world
-        .objects
-        .iter()
-        .flat_map(|object| ray.intersect(*object))
-        .collect::<Vec<Intersection>>();
-    intersections.sort_unstable();
-    intersections
-}
-
-#[test]
-fn test_intersect_a_world_with_a_ray() {
-    let world = World::default();
-    let ray =
-        Ray::new(Tuple::point(0.0, 0.0, -5.0), Tuple::vector(0.0, 0.0, 1.0));
-    let xs = intersect_world(world, ray);
-    assert_eq!(xs.len(), 4);
-    assert_eq!(xs[0].t, 4.0);
-    assert_eq!(xs[1].t, 4.5);
-    assert_eq!(xs[2].t, 5.5);
-    assert_eq!(xs[3].t, 6.0);
 }
