@@ -2,6 +2,7 @@ extern crate ray_tracer_challenge;
 
 use ray_tracer_challenge::camera::Camera;
 use ray_tracer_challenge::materials::Material;
+use ray_tracer_challenge::matrices::Matrix4;
 use ray_tracer_challenge::rays::PointLight;
 use ray_tracer_challenge::spheres::Sphere;
 use ray_tracer_challenge::transforms::view_transform;
@@ -20,21 +21,77 @@ fn main() -> std::io::Result<()> {
     let mut world = World::new();
     world.light_source = Some(light);
 
+    let mut side_color = Material::default();
+    side_color.color = Tuple::color(1.0, 0.9, 0.9);
+    side_color.specular = 0.0;
+
     {
-        let mut sphere = Sphere::new();
-        let mut material = Material::default();
-        material.color = Tuple::color(1.0, 0.2, 1.0);
-        sphere.material = material;
-        world.objects.push(sphere);
+        let mut floor = Sphere::new();
+        floor.transform = Matrix4::scaling(10.0, 0.01, 10.0);
+        floor.material = side_color;
+        world.objects.push(floor);
     }
 
-    let mut camera = Camera::new(100, 50, PI / 3.0);
+    {
+        let mut left_wall = Sphere::new();
+        left_wall.transform = Matrix4::translation(0.0, 0.0, 5.0)
+            * Matrix4::rotation_y(-PI / 4.0)
+            * Matrix4::rotation_x(PI / 2.0)
+            * Matrix4::scaling(10.0, 0.01, 10.0);
+        left_wall.material = side_color;
+        world.objects.push(left_wall);
+    }
+
+    {
+        let mut right_wall = Sphere::new();
+        right_wall.transform = Matrix4::translation(0.0, 0.0, 5.0)
+            * Matrix4::rotation_y(PI / 4.0)
+            * Matrix4::rotation_x(PI / 2.0)
+            * Matrix4::scaling(10.0, 0.01, 10.0);
+        right_wall.material = side_color;
+        world.objects.push(right_wall);
+    }
+
+    {
+        let mut middle = Sphere::new();
+        middle.transform = Matrix4::translation(-0.5, 1.0, 0.5);
+        middle.material = Material::default();
+        middle.material.color = Tuple::color(0.1, 1.0, 0.5);
+        middle.material.diffuse = 0.7;
+        middle.material.specular = 0.3;
+        world.objects.push(middle);
+    }
+
+    {
+        let mut right = Sphere::new();
+        right.transform = Matrix4::translation(1.5, 0.5, -0.5)
+            * Matrix4::scaling(0.5, 0.5, 0.5);
+        right.material = Material::default();
+        right.material.color = Tuple::color(0.5, 1.0, 0.1);
+        right.material.diffuse = 0.7;
+        right.material.specular = 0.3;
+        world.objects.push(right);
+    }
+
+    {
+        let mut left = Sphere::new();
+        left.transform = Matrix4::translation(-1.5, 0.33, -0.75)
+            * Matrix4::scaling(0.33, 0.33, 0.33);
+        left.material = Material::default();
+        left.material.color = Tuple::color(1.0, 0.8, 0.1);
+        left.material.diffuse = 0.7;
+        left.material.specular = 0.3;
+        world.objects.push(left);
+    }
+
+    let mut camera = Camera::new(2560, 1440, PI / 3.0);
     camera.transform = view_transform(
         Tuple::point(0.0, 1.5, -5.0),
         Tuple::point(0.0, 1.0, 0.0),
         Tuple::vector(0.0, 1.0, 0.0),
     );
 
+    println!("Rendering world with {} pixels", camera.num_pixels());
     let image = camera.render(world);
 
     let ppm = image.to_ppm();

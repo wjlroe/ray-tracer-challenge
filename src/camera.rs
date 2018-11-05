@@ -62,6 +62,10 @@ impl Camera {
         }
         canvas
     }
+
+    pub fn num_pixels(&self) -> u32 {
+        self.vsize * self.hsize
+    }
 }
 
 #[test]
