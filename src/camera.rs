@@ -11,7 +11,7 @@ pub struct Camera {
     pixel_size: f32,
     half_width: f32,
     half_height: f32,
-    transform: Matrix4,
+    pub transform: Matrix4,
 }
 
 impl Camera {
