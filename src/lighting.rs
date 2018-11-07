@@ -31,6 +31,7 @@ pub fn lighting(
     point: Tuple,
     eyev: Tuple,
     normalv: Tuple,
+    in_shadow: bool,
 ) -> Tuple {
     let black = Tuple::color(0.0, 0.0, 0.0);
     let diffuse;
@@ -52,7 +53,11 @@ pub fn lighting(
             light.intensity * material.specular * reflect_dot_eye
         };
     }
-    ambient + diffuse + specular
+    if in_shadow {
+        ambient
+    } else {
+        ambient + diffuse + specular
+    }
 }
 
 #[test]
@@ -65,7 +70,8 @@ fn test_lighting_with_the_eye_between_the_light_and_the_surface() {
         Tuple::point(0.0, 0.0, -10.0),
         Tuple::color(1.0, 1.0, 1.0),
     );
-    let result = lighting(m, light, position, eyev, normalv);
+    let in_shadow = false;
+    let result = lighting(m, light, position, eyev, normalv, in_shadow);
     assert_eq!(result, Tuple::color(1.9, 1.9, 1.9));
 }
 
@@ -80,7 +86,8 @@ fn test_lighting_with_the_eye_between_light_and_surface_eye_offset_45_degrees()
         Tuple::point(0.0, 0.0, -10.0),
         Tuple::color(1.0, 1.0, 1.0),
     );
-    let result = lighting(m, light, position, eyev, normalv);
+    let in_shadow = false;
+    let result = lighting(m, light, position, eyev, normalv, in_shadow);
     assert_eq!(result, Tuple::color(1.0, 1.0, 1.0));
 }
 
@@ -94,7 +101,8 @@ fn test_lighting_with_eye_opposite_surface_light_offset_45_degrees() {
         Tuple::point(0.0, 10.0, -10.0),
         Tuple::color(1.0, 1.0, 1.0),
     );
-    let result = lighting(m, light, position, eyev, normalv);
+    let in_shadow = false;
+    let result = lighting(m, light, position, eyev, normalv, in_shadow);
     assert_eq!(result, Tuple::color(0.7364, 0.7364, 0.7364));
 }
 
@@ -108,7 +116,8 @@ fn test_lighting_with_eye_in_the_path_of_the_reflection_vector() {
         Tuple::point(0.0, 10.0, -10.0),
         Tuple::color(1.0, 1.0, 1.0),
     );
-    let result = lighting(m, light, position, eyev, normalv);
+    let in_shadow = false;
+    let result = lighting(m, light, position, eyev, normalv, in_shadow);
     assert_eq!(result, Tuple::color(1.63638, 1.63638, 1.63638));
 }
 
@@ -122,6 +131,22 @@ fn test_lighting_with_the_light_behind_the_surface() {
         Tuple::point(0.0, 0.0, 10.0),
         Tuple::color(1.0, 1.0, 1.0),
     );
-    let result = lighting(m, light, position, eyev, normalv);
+    let in_shadow = false;
+    let result = lighting(m, light, position, eyev, normalv, in_shadow);
+    assert_eq!(result, Tuple::color(0.1, 0.1, 0.1));
+}
+
+#[test]
+fn test_lighting_with_the_surface_in_shadow() {
+    let m = Material::default();
+    let position = Tuple::point(0.0, 0.0, 0.0);
+    let eyev = Tuple::vector(0.0, 0.0, -1.0);
+    let normalv = Tuple::vector(0.0, 0.0, -1.0);
+    let light = PointLight::new(
+        Tuple::point(0.0, 0.0, -10.0),
+        Tuple::color(1.0, 1.0, 1.0),
+    );
+    let in_shadow = true;
+    let result = lighting(m, light, position, eyev, normalv, in_shadow);
     assert_eq!(result, Tuple::color(0.1, 0.1, 0.1));
 }

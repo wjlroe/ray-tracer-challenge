@@ -82,6 +82,7 @@ impl Intersection {
             self.point.unwrap(),
             self.eyev.unwrap(),
             self.normalv.unwrap(),
+            false,
         )
     }
 }
