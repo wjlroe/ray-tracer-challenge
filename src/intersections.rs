@@ -1,5 +1,6 @@
 use super::float_eq;
-use rays::{lighting, Ray};
+use lighting::lighting;
+use rays::Ray;
 use spheres::Sphere;
 use std::cmp;
 use tuples::Tuple;
@@ -134,7 +135,7 @@ fn test_shading_an_intersection() {
 
 #[test]
 fn test_shading_an_intersection_from_the_inside() {
-    use rays::PointLight;
+    use lighting::PointLight;
 
     let mut world = World::default();
     world.light_source = Some(PointLight::new(

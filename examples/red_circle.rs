@@ -1,9 +1,9 @@
 extern crate ray_tracer_challenge;
 
 use ray_tracer_challenge::camera::Camera;
+use ray_tracer_challenge::lighting::PointLight;
 use ray_tracer_challenge::materials::Material;
 use ray_tracer_challenge::matrices::Matrix4;
-use ray_tracer_challenge::rays::PointLight;
 use ray_tracer_challenge::spheres::Sphere;
 use ray_tracer_challenge::transforms::view_transform;
 use ray_tracer_challenge::tuples::Tuple;

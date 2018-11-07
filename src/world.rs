@@ -1,6 +1,6 @@
 use intersections::{find_hit, Intersection};
+use lighting::PointLight;
 use matrices::Matrix4;
-use rays::PointLight;
 use rays::Ray;
 use spheres::Sphere;
 use tuples::Tuple;
