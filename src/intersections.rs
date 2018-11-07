@@ -61,11 +61,12 @@ impl Intersection {
     }
 
     pub fn prepare_hit(&mut self, ray: &Ray) {
-        let position = ray.position(self.t);
-        self.point = Some(position);
+        let mut position = ray.position(self.t);
         let eyev = -ray.direction;
-        self.eyev = Some(eyev);
         let normalv = self.object.normal_at(position);
+        position = position + normalv * 0.0001;
+        self.eyev = Some(eyev);
+        self.point = Some(position);
         if normalv.dot(eyev) < 0.0 {
             self.inside = Some(true);
             self.normalv = Some(-normalv)
@@ -76,13 +77,14 @@ impl Intersection {
     }
 
     pub fn shade_hit(self, world: &World) -> Tuple {
+        let is_shadowed = world.is_shadowed(self.point.unwrap());
         lighting(
             self.object.material,
             world.light_source.unwrap(),
             self.point.unwrap(),
             self.eyev.unwrap(),
             self.normalv.unwrap(),
-            false,
+            is_shadowed,
         )
     }
 }
@@ -123,6 +125,17 @@ fn test_an_intersection_occurs_on_the_inside() {
 }
 
 #[test]
+fn test_the_point_is_offset() {
+    let ray =
+        Ray::new(Tuple::point(0.0, 0.0, -5.0), Tuple::vector(0.0, 0.0, 1.0));
+    let shape = Sphere::new();
+    let mut hit = Intersection::new(4.0, shape);
+    hit.prepare_hit(&ray);
+    assert!(hit.point.unwrap().z <= -1.0);
+    assert!(hit.point.unwrap().z >= -1.1);
+}
+
+#[test]
 fn test_shading_an_intersection() {
     let world = World::default();
     let ray =
@@ -149,7 +162,30 @@ fn test_shading_an_intersection_from_the_inside() {
     let mut hit = Intersection::new(0.5, shape);
     hit.prepare_hit(&ray);
     let c = hit.shade_hit(&world);
-    assert_eq!(c, Tuple::color(0.90498, 0.90498, 0.90498));
+    assert_eq!(c, Tuple::color(0.1, 0.1, 0.1));
+}
+
+#[test]
+fn test_when_shade_hit_is_given_an_intersection_in_shadow() {
+    use lighting::PointLight;
+    use matrices::Matrix4;
+
+    let mut world = World::new();
+    world.light_source = Some(PointLight::new(
+        Tuple::point(0.0, 0.0, -10.0),
+        Tuple::color(1.0, 1.0, 1.0),
+    ));
+    let s1 = Sphere::new();
+    world.objects.push(s1);
+    let mut s2 = Sphere::new();
+    s2.transform = Matrix4::translation(0.0, 0.0, 10.0);
+    world.objects.push(s2);
+    let ray =
+        Ray::new(Tuple::point(0.0, 0.0, 5.0), Tuple::vector(0.0, 0.0, 1.0));
+    let mut hit = Intersection::new(4.0, s2);
+    hit.prepare_hit(&ray);
+    let c = hit.shade_hit(&world);
+    assert_eq!(c, Tuple::color(0.1, 0.1, 0.1));
 }
 
 pub fn find_hit(intersections: Vec<Intersection>) -> Option<Intersection> {
