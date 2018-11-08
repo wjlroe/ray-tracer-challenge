@@ -96,7 +96,7 @@ fn test_precomputing_the_state_of_an_intersection() {
     let shape = Sphere::new();
     let mut hit = Intersection::new(4.0, shape);
     hit.prepare_hit(&ray);
-    assert_eq!(hit.point, Some(Tuple::point(0.0, 0.0, -1.0)));
+    assert_eq!(hit.point, Some(Tuple::point(0.0, 0.0, -1.0001)));
     assert_eq!(hit.eyev, Some(Tuple::vector(0.0, 0.0, -1.0)));
     assert_eq!(hit.normalv, Some(Tuple::vector(0.0, 0.0, -1.0)));
 }
@@ -118,7 +118,7 @@ fn test_an_intersection_occurs_on_the_inside() {
     let shape = Sphere::new();
     let mut hit = Intersection::new(1.0, shape);
     hit.prepare_hit(&ray);
-    assert_eq!(hit.point, Some(Tuple::point(0.0, 0.0, 1.0)));
+    assert_eq!(hit.point, Some(Tuple::point(0.0, 0.0, 1.0001)));
     assert_eq!(hit.eyev, Some(Tuple::vector(0.0, 0.0, -1.0)));
     assert_eq!(hit.inside, Some(true));
     assert_eq!(hit.normalv, Some(Tuple::vector(0.0, 0.0, -1.0)));
@@ -162,7 +162,7 @@ fn test_shading_an_intersection_from_the_inside() {
     let mut hit = Intersection::new(0.5, shape);
     hit.prepare_hit(&ray);
     let c = hit.shade_hit(&world);
-    assert_eq!(c, Tuple::color(0.1, 0.1, 0.1));
+    assert_eq!(c, Tuple::color(0.90502, 0.90502, 0.90502));
 }
 
 #[test]
@@ -191,7 +191,7 @@ fn test_when_shade_hit_is_given_an_intersection_in_shadow() {
 pub fn find_hit(intersections: Vec<Intersection>) -> Option<Intersection> {
     intersections
         .iter()
-        .filter(|inter| inter.t > 0.0)
+        .filter(|inter| inter.t > 0.01)
         .min()
         .cloned()
 }

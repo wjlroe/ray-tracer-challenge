@@ -84,7 +84,7 @@ fn main() -> std::io::Result<()> {
         world.objects.push(left);
     }
 
-    let mut camera = Camera::new(2560, 1440, PI / 3.0);
+    let mut camera = Camera::new(1000, 500, PI / 3.0);
     camera.transform = view_transform(
         Tuple::point(0.0, 1.5, -5.0),
         Tuple::point(0.0, 1.0, 0.0),
@@ -92,7 +92,37 @@ fn main() -> std::io::Result<()> {
     );
 
     println!("Rendering world with {} pixels", camera.num_pixels());
-    let image = camera.render(world);
+    let mut image = camera.render(world);
+    let draw_debug = false;
+    if draw_debug {
+        // 400,10
+        let debug_point = (40, 2);
+        let red = Tuple::color(1.0, 0.0, 0.0);
+        for pre_x in 1..4 {
+            for pre_y in 1..4 {
+                image.write_pixel(
+                    debug_point.0 - pre_x,
+                    debug_point.1 - pre_y,
+                    &red,
+                );
+                image.write_pixel(
+                    debug_point.0 - pre_x,
+                    debug_point.1 + pre_y,
+                    &red,
+                );
+                image.write_pixel(
+                    debug_point.0 + pre_x,
+                    debug_point.1 - pre_y,
+                    &red,
+                );
+                image.write_pixel(
+                    debug_point.0 + pre_x,
+                    debug_point.1 + pre_y,
+                    &red,
+                );
+            }
+        }
+    }
 
     let ppm = image.to_ppm();
     let filename = "red_circle.ppm";
