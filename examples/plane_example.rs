@@ -14,7 +14,7 @@ use std::io::prelude::*;
 
 fn main() -> std::io::Result<()> {
     let light = PointLight::new(
-        Tuple::point(-10.0, 10.0, -10.0),
+        Tuple::point(-10.0, 2.5, -10.0),
         Tuple::color(1.0, 1.0, 1.0),
     );
 
@@ -37,6 +37,13 @@ fn main() -> std::io::Result<()> {
             * Matrix4::rotation_x(PI / 2.0);
         back_wall.material = side_color;
         world.objects.push(back_wall);
+    }
+
+    {
+        let mut ceiling = Plane::new();
+        ceiling.transform = Matrix4::translation(0.0, 3.0, 0.0);
+        ceiling.material = side_color;
+        world.objects.push(ceiling);
     }
 
     {
@@ -71,7 +78,10 @@ fn main() -> std::io::Result<()> {
         world.objects.push(left);
     }
 
-    let mut camera = Camera::new(1000, 500, PI / 3.0);
+    let aspect = 2560.0 / 1440.0;
+    let vsize = 100;
+    let hsize = (aspect * vsize as f32).round() as u32;
+    let mut camera = Camera::new(hsize, vsize, PI / 3.0);
     camera.transform = view_transform(
         Tuple::point(0.0, 1.5, -5.0),
         Tuple::point(0.0, 1.0, 0.0),
