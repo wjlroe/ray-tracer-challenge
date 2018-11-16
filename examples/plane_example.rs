@@ -14,7 +14,7 @@ use std::io::prelude::*;
 
 fn main() -> std::io::Result<()> {
     let light = PointLight::new(
-        Tuple::point(-10.0, 2.5, -10.0),
+        Tuple::point(-1.0, 2.5, -1.0),
         Tuple::color(1.0, 1.0, 1.0),
     );
 
@@ -31,12 +31,17 @@ fn main() -> std::io::Result<()> {
         world.objects.push(floor);
     }
 
-    {
-        let mut back_wall = Plane::new();
-        back_wall.transform = Matrix4::translation(0.0, 0.0, 10.0)
+    // hexagon angles
+    // 120 degrees around y-axis
+    // 2 PI / 3.0 radians
+    // if 90 degrees is PI/2.0
+    for hex in 0..6 {
+        let mut wall = Plane::new();
+        wall.transform = Matrix4::translation(0.0, 0.0, 4.0)
+            * Matrix4::rotation_y((hex * 2) as f32 * PI / 3.0)
             * Matrix4::rotation_x(PI / 2.0);
-        back_wall.material = side_color;
-        world.objects.push(back_wall);
+        wall.material = side_color;
+        world.objects.push(wall);
     }
 
     {
