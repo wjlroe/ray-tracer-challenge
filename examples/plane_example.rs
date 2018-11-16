@@ -41,7 +41,7 @@ fn main() -> std::io::Result<()> {
 
     {
         let mut middle = Sphere::new();
-        middle.transform = Matrix4::translation(-0.5, 1.0, 0.5);
+        middle.transform = Matrix4::translation(-0.5, -0.1, 0.5);
         middle.material = Material::default();
         middle.material.color = Tuple::color(0.1, 1.0, 0.5);
         middle.material.diffuse = 0.7;
