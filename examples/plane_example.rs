@@ -32,6 +32,14 @@ fn main() -> std::io::Result<()> {
     }
 
     {
+        let mut back_wall = Plane::new();
+        back_wall.transform = Matrix4::translation(0.0, 0.0, 10.0)
+            * Matrix4::rotation_x(PI / 2.0);
+        back_wall.material = side_color;
+        world.objects.push(back_wall);
+    }
+
+    {
         let mut middle = Sphere::new();
         middle.transform = Matrix4::translation(-0.5, 1.0, 0.5);
         middle.material = Material::default();
