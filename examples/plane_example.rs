@@ -40,13 +40,6 @@ fn main() -> std::io::Result<()> {
     }
 
     {
-        let mut ceiling = Plane::new();
-        ceiling.transform = Matrix4::translation(0.0, 3.0, 0.0);
-        ceiling.material = side_color;
-        world.objects.push(ceiling);
-    }
-
-    {
         let mut middle = Sphere::new();
         middle.transform = Matrix4::translation(-0.5, -0.1, 0.5);
         middle.material = Material::default();
@@ -83,9 +76,9 @@ fn main() -> std::io::Result<()> {
     let hsize = (aspect * vsize as f32).round() as u32;
     let mut camera = Camera::new(hsize, vsize, PI / 3.0);
     camera.transform = view_transform(
-        Tuple::point(0.0, 1.5, -5.0),
+        Tuple::point(0.0, 10.5, 0.0),
         Tuple::point(0.0, 1.0, 0.0),
-        Tuple::vector(0.0, 1.0, 0.0),
+        Tuple::vector(0.0, 0.0, 1.0),
     );
 
     println!("Rendering world with {} pixels", camera.num_pixels());
