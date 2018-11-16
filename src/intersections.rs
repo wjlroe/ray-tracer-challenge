@@ -1,15 +1,15 @@
 use super::float_eq;
 use lighting::lighting;
 use rays::Ray;
-use spheres::Sphere;
+use shapes::Shape;
 use std::cmp;
 use tuples::Tuple;
 use world::World;
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Clone, Debug)]
 pub struct Intersection {
     pub t: f32,
-    pub object: Sphere,
+    pub object: Shape,
     pub point: Option<Tuple>,
     pub eyev: Option<Tuple>,
     pub normalv: Option<Tuple>,
@@ -49,7 +49,7 @@ impl cmp::Ord for Intersection {
 }
 
 impl Intersection {
-    pub fn new(t: f32, object: Sphere) -> Self {
+    pub fn new(t: f32, object: Shape) -> Self {
         Intersection {
             t,
             object,
@@ -91,6 +91,7 @@ impl Intersection {
 
 #[test]
 fn test_precomputing_the_state_of_an_intersection() {
+    use shapes::*;
     let ray =
         Ray::new(Tuple::point(0.0, 0.0, -5.0), Tuple::vector(0.0, 0.0, 1.0));
     let shape = Sphere::new();
@@ -103,6 +104,7 @@ fn test_precomputing_the_state_of_an_intersection() {
 
 #[test]
 fn test_an_intersection_occurs_on_the_outside() {
+    use shapes::*;
     let ray =
         Ray::new(Tuple::point(0.0, 0.0, -5.0), Tuple::vector(0.0, 0.0, 1.0));
     let shape = Sphere::new();
@@ -113,6 +115,7 @@ fn test_an_intersection_occurs_on_the_outside() {
 
 #[test]
 fn test_an_intersection_occurs_on_the_inside() {
+    use shapes::Sphere;
     let ray =
         Ray::new(Tuple::point(0.0, 0.0, 0.0), Tuple::vector(0.0, 0.0, 1.0));
     let shape = Sphere::new();
@@ -126,6 +129,7 @@ fn test_an_intersection_occurs_on_the_inside() {
 
 #[test]
 fn test_the_point_is_offset() {
+    use shapes::Sphere;
     let ray =
         Ray::new(Tuple::point(0.0, 0.0, -5.0), Tuple::vector(0.0, 0.0, 1.0));
     let shape = Sphere::new();
@@ -140,7 +144,7 @@ fn test_shading_an_intersection() {
     let world = World::default();
     let ray =
         Ray::new(Tuple::point(0.0, 0.0, -5.0), Tuple::vector(0.0, 0.0, 1.0));
-    let shape = world.objects[0];
+    let shape = world.objects[0].clone();
     let mut hit = Intersection::new(4.0, shape);
     hit.prepare_hit(&ray);
     let c = hit.shade_hit(&world);
@@ -158,7 +162,7 @@ fn test_shading_an_intersection_from_the_inside() {
     ));
     let ray =
         Ray::new(Tuple::point(0.0, 0.0, 0.0), Tuple::vector(0.0, 0.0, 1.0));
-    let shape = world.objects[1];
+    let shape = world.objects[1].clone();
     let mut hit = Intersection::new(0.5, shape);
     hit.prepare_hit(&ray);
     let c = hit.shade_hit(&world);
@@ -169,6 +173,7 @@ fn test_shading_an_intersection_from_the_inside() {
 fn test_when_shade_hit_is_given_an_intersection_in_shadow() {
     use lighting::PointLight;
     use matrices::Matrix4;
+    use shapes::Sphere;
 
     let mut world = World::new();
     world.light_source = Some(PointLight::new(
@@ -188,7 +193,7 @@ fn test_when_shade_hit_is_given_an_intersection_in_shadow() {
     assert_eq!(c, Tuple::color(0.1, 0.1, 0.1));
 }
 
-pub fn find_hit(intersections: Vec<Intersection>) -> Option<Intersection> {
+pub fn find_hit<'a>(intersections: &[Intersection]) -> Option<Intersection> {
     intersections
         .iter()
         .filter(|inter| inter.t > 0.01)
@@ -198,6 +203,7 @@ pub fn find_hit(intersections: Vec<Intersection>) -> Option<Intersection> {
 
 #[test]
 fn test_an_intersection_encapsulates_t_and_object() {
+    use shapes::Sphere;
     let s = Sphere::new();
     let i = Intersection::new(3.5, s.clone());
     assert_eq!(i.t, 3.5);
@@ -206,6 +212,7 @@ fn test_an_intersection_encapsulates_t_and_object() {
 
 #[test]
 fn test_aggregating_intersections() {
+    use shapes::Sphere;
     let s = Sphere::new();
     let xs = s.intersections(vec![1.0, 2.0]);
     assert_eq!(xs.len(), 2);
@@ -215,35 +222,39 @@ fn test_aggregating_intersections() {
 
 #[test]
 fn test_the_hit_when_all_intersections_have_positive_t() {
+    use shapes::Sphere;
     let s = Sphere::new();
     let xs = s.intersections(vec![1.0, 2.0]);
-    let h = find_hit(xs);
+    let h = find_hit(&xs);
     assert!(h.is_some());
     assert_eq!(h.unwrap().t, 1.0);
 }
 
 #[test]
 fn test_the_hit_when_some_intersections_have_negative_t() {
+    use shapes::Sphere;
     let s = Sphere::new();
     let xs = s.intersections(vec![1.0, -1.0]);
-    let h = find_hit(xs);
+    let h = find_hit(&xs);
     assert!(h.is_some());
     assert_eq!(h.unwrap().t, 1.0);
 }
 
 #[test]
 fn test_the_hit_when_all_intersections_have_negative_t() {
+    use shapes::Sphere;
     let s = Sphere::new();
     let xs = s.intersections(vec![-2.0, -1.0]);
-    let h = find_hit(xs);
+    let h = find_hit(&xs);
     assert!(h.is_none());
 }
 
 #[test]
 fn test_the_hit_is_always_the_lowest_non_negative_intersection() {
+    use shapes::Sphere;
     let s = Sphere::new();
     let xs = s.intersections(vec![5.0, 7.0, -3.0, 2.0]);
-    let h = find_hit(xs);
+    let h = find_hit(&xs);
     assert!(h.is_some());
     assert_eq!(h.unwrap().t, 2.0);
 }

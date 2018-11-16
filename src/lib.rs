@@ -5,7 +5,7 @@ pub mod lighting;
 pub mod materials;
 pub mod matrices;
 pub mod rays;
-pub mod spheres;
+pub mod shapes;
 pub mod transforms;
 pub mod tuples;
 pub mod world;

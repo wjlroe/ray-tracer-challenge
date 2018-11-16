@@ -2,12 +2,12 @@ use intersections::{find_hit, Intersection};
 use lighting::PointLight;
 use matrices::Matrix4;
 use rays::Ray;
-use spheres::Sphere;
+use shapes::{Shape, Sphere};
 use tuples::Tuple;
 
 pub struct World {
     pub light_source: Option<PointLight>,
-    pub objects: Vec<Sphere>,
+    pub objects: Vec<Shape>,
 }
 
 impl World {
@@ -22,7 +22,7 @@ impl World {
         let mut intersections = self
             .objects
             .iter()
-            .flat_map(|object| ray.intersect(*object))
+            .flat_map(|object| object.intersect(ray))
             .collect::<Vec<Intersection>>();
         intersections.sort_unstable();
         intersections
@@ -30,7 +30,7 @@ impl World {
 
     pub fn color_at(&self, ray: &Ray) -> Tuple {
         let xs = self.intersect_world(ray);
-        if let Some(mut hit) = find_hit(xs) {
+        if let Some(mut hit) = find_hit(&xs) {
             hit.prepare_hit(ray);
             hit.shade_hit(self) // .normalize()
         } else {
@@ -44,7 +44,7 @@ impl World {
             let distance = v.magnitude();
             let ray = Ray::new(point, v.normalize());
             let xs = self.intersect_world(&ray);
-            if let Some(hit) = find_hit(xs) {
+            if let Some(hit) = find_hit(&xs) {
                 hit.t < distance
             } else {
                 false
@@ -98,6 +98,7 @@ fn test_the_color_with_an_intersection_behind_the_ray() {
     let mut world = World::default();
     world.objects[0].material.ambient = 1.0;
     world.objects[1].material.ambient = 1.0;
+    assert_eq!(world.objects[0].material.ambient, 1.0);
     let ray =
         Ray::new(Tuple::point(0.0, 0.0, 0.75), Tuple::vector(0.0, 0.0, -1.0));
     let c = world.color_at(&ray);
