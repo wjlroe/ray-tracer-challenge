@@ -38,7 +38,7 @@ fn main() -> std::io::Result<()> {
     for hex in 0..6 {
         let mut wall = Plane::new();
         wall.transform = Matrix4::translation(0.0, 0.0, 4.0)
-            * Matrix4::rotation_y((hex * 2) as f32 * PI / 3.0)
+            * Matrix4::rotation_y(hex as f32 * (PI / 3.0))
             * Matrix4::rotation_x(PI / 2.0);
         wall.material = side_color;
         world.objects.push(wall);
