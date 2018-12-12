@@ -58,9 +58,9 @@ impl LineLengthLimitedString {
             padded_front = false;
         }
         if padded_front {
-            write!(&mut self.string, " {}", num);
+            let _ = write!(&mut self.string, " {}", num);
         } else {
-            write!(&mut self.string, "{}", num);
+            let _ = write!(&mut self.string, "{}", num);
         }
         self.this_line_length += n;
         if padded_front {
@@ -108,7 +108,7 @@ impl Canvas {
     pub fn to_ppm(&self) -> String {
         let mut ppm = LineLengthLimitedString::new(70);
         ppm.push_str("P3\n", 0);
-        write!(&mut ppm.string, "{} {}\n", self.width, self.height);
+        let _ = write!(&mut ppm.string, "{} {}\n", self.width, self.height);
         ppm.push_str("255\n", 0);
         for row in self.pixels.chunks(self.width as usize) {
             for (idx, pixel) in row.iter().enumerate() {
