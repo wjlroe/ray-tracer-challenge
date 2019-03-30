@@ -1,4 +1,6 @@
 use materials::Material;
+use patterns::stripe_at_object;
+use shapes::Shape;
 use tuples::Tuple;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
@@ -27,6 +29,7 @@ fn test_a_point_light_has_a_position_and_intensity() {
 
 pub fn lighting(
     material: Material,
+    object: Shape,
     light: PointLight,
     point: Tuple,
     eyev: Tuple,
@@ -38,7 +41,7 @@ pub fn lighting(
     let specular;
     let color = material
         .pattern
-        .map(|pattern| pattern.stripe_at(point))
+        .map(|pattern| stripe_at_object(pattern, object, point))
         .unwrap_or(material.color);
     let effective_color = color * light.intensity;
     let lightv = (light.position - point).normalize();
@@ -66,6 +69,7 @@ pub fn lighting(
 
 #[test]
 fn test_lighting_with_the_eye_between_the_light_and_the_surface() {
+    let object = Shape::default();
     let m = Material::default();
     let position = Tuple::point(0.0, 0.0, 0.0);
     let eyev = Tuple::vector(0.0, 0.0, -1.0);
@@ -75,13 +79,14 @@ fn test_lighting_with_the_eye_between_the_light_and_the_surface() {
         Tuple::color(1.0, 1.0, 1.0),
     );
     let in_shadow = false;
-    let result = lighting(m, light, position, eyev, normalv, in_shadow);
+    let result = lighting(m, object, light, position, eyev, normalv, in_shadow);
     assert_eq!(result, Tuple::color(1.9, 1.9, 1.9));
 }
 
 #[test]
 fn test_lighting_with_the_eye_between_light_and_surface_eye_offset_45_degrees()
 {
+    let object = Shape::default();
     let m = Material::default();
     let position = Tuple::point(0.0, 0.0, 0.0);
     let eyev = Tuple::vector(0.0, 2f32.sqrt() / 2.0, -2f32.sqrt() / 2.0);
@@ -91,12 +96,13 @@ fn test_lighting_with_the_eye_between_light_and_surface_eye_offset_45_degrees()
         Tuple::color(1.0, 1.0, 1.0),
     );
     let in_shadow = false;
-    let result = lighting(m, light, position, eyev, normalv, in_shadow);
+    let result = lighting(m, object, light, position, eyev, normalv, in_shadow);
     assert_eq!(result, Tuple::color(1.0, 1.0, 1.0));
 }
 
 #[test]
 fn test_lighting_with_eye_opposite_surface_light_offset_45_degrees() {
+    let object = Shape::default();
     let m = Material::default();
     let position = Tuple::point(0.0, 0.0, 0.0);
     let eyev = Tuple::vector(0.0, 0.0, -1.0);
@@ -106,12 +112,13 @@ fn test_lighting_with_eye_opposite_surface_light_offset_45_degrees() {
         Tuple::color(1.0, 1.0, 1.0),
     );
     let in_shadow = false;
-    let result = lighting(m, light, position, eyev, normalv, in_shadow);
+    let result = lighting(m, object, light, position, eyev, normalv, in_shadow);
     assert_eq!(result, Tuple::color(0.7364, 0.7364, 0.7364));
 }
 
 #[test]
 fn test_lighting_with_eye_in_the_path_of_the_reflection_vector() {
+    let object = Shape::default();
     let m = Material::default();
     let position = Tuple::point(0.0, 0.0, 0.0);
     let eyev = Tuple::vector(0.0, -2f32.sqrt() / 2.0, -2f32.sqrt() / 2.0);
@@ -121,12 +128,13 @@ fn test_lighting_with_eye_in_the_path_of_the_reflection_vector() {
         Tuple::color(1.0, 1.0, 1.0),
     );
     let in_shadow = false;
-    let result = lighting(m, light, position, eyev, normalv, in_shadow);
+    let result = lighting(m, object, light, position, eyev, normalv, in_shadow);
     assert_eq!(result, Tuple::color(1.63638, 1.63638, 1.63638));
 }
 
 #[test]
 fn test_lighting_with_the_light_behind_the_surface() {
+    let object = Shape::default();
     let m = Material::default();
     let position = Tuple::point(0.0, 0.0, 0.0);
     let eyev = Tuple::vector(0.0, 0.0, -1.0);
@@ -136,12 +144,13 @@ fn test_lighting_with_the_light_behind_the_surface() {
         Tuple::color(1.0, 1.0, 1.0),
     );
     let in_shadow = false;
-    let result = lighting(m, light, position, eyev, normalv, in_shadow);
+    let result = lighting(m, object, light, position, eyev, normalv, in_shadow);
     assert_eq!(result, Tuple::color(0.1, 0.1, 0.1));
 }
 
 #[test]
 fn test_lighting_with_the_surface_in_shadow() {
+    let object = Shape::default();
     let m = Material::default();
     let position = Tuple::point(0.0, 0.0, 0.0);
     let eyev = Tuple::vector(0.0, 0.0, -1.0);
@@ -151,7 +160,7 @@ fn test_lighting_with_the_surface_in_shadow() {
         Tuple::color(1.0, 1.0, 1.0),
     );
     let in_shadow = true;
-    let result = lighting(m, light, position, eyev, normalv, in_shadow);
+    let result = lighting(m, object, light, position, eyev, normalv, in_shadow);
     assert_eq!(result, Tuple::color(0.1, 0.1, 0.1));
 }
 
@@ -160,6 +169,7 @@ fn test_lighting_with_a_pattern_applied() {
     // FIXME: we can remove this when parent module imports this...
     use patterns::Pattern;
 
+    let object = Shape::default();
     let mut m = Material::default();
     m.pattern = Some(Pattern::stripe(
         Tuple::color(1.0, 1.0, 1.0),
@@ -174,10 +184,24 @@ fn test_lighting_with_a_pattern_applied() {
         Tuple::point(0.0, 0.0, -10.0),
         Tuple::color(1.0, 1.0, 1.0),
     );
-    let c1 =
-        lighting(m, light, Tuple::point(0.9, 0.0, 0.0), eyev, normalv, false);
-    let c2 =
-        lighting(m, light, Tuple::point(1.0, 0.0, 0.0), eyev, normalv, false);
+    let c1 = lighting(
+        m,
+        object,
+        light,
+        Tuple::point(0.9, 0.0, 0.0),
+        eyev,
+        normalv,
+        false,
+    );
+    let c2 = lighting(
+        m,
+        object,
+        light,
+        Tuple::point(1.0, 0.0, 0.0),
+        eyev,
+        normalv,
+        false,
+    );
     assert_eq!(c1, Tuple::color(1.0, 1.0, 1.0));
     assert_eq!(c2, Tuple::color(0.0, 0.0, 0.0));
 }

@@ -23,10 +23,13 @@ fn main() -> std::io::Result<()> {
     world.light_source = Some(light);
 
     let mut side_color = Material::default();
-    side_color.pattern = Some(Pattern::stripe(
+    let mut side_pattern = Pattern::stripe(
         Tuple::color(1.0, 0.9, 0.9),
         Tuple::color(0.7, 0.6, 0.6),
-    ));
+    );
+    side_pattern.transform =
+        Matrix4::translation(0.2, 0.5, 1.5) * Matrix4::rotation_x(PI / 2.0);
+    side_color.pattern = Some(side_pattern);
     side_color.specular = 0.0;
 
     {
@@ -60,10 +63,12 @@ fn main() -> std::io::Result<()> {
         let mut middle = Sphere::new();
         middle.transform = Matrix4::translation(-0.5, 1.0, 0.5);
         middle.material = Material::default();
-        middle.material.pattern = Some(Pattern::stripe(
-            Tuple::color(0.1, 1.0, 0.5),
+        let mut pattern = Pattern::stripe(
+            Tuple::color(0.1, 0.6, 0.5),
             Tuple::color(0.3, 0.9, 0.7),
-        ));
+        );
+        pattern.transform = Matrix4::scaling(0.5, 0.5, 0.5);
+        middle.material.pattern = Some(pattern);
         middle.material.diffuse = 0.7;
         middle.material.specular = 0.3;
         world.objects.push(middle);
@@ -74,10 +79,12 @@ fn main() -> std::io::Result<()> {
         right.transform = Matrix4::translation(1.5, 0.5, -0.5)
             * Matrix4::scaling(0.5, 0.5, 0.5);
         right.material = Material::default();
-        right.material.pattern = Some(Pattern::stripe(
+        let mut pattern = Pattern::stripe(
             Tuple::color(0.5, 1.0, 0.1),
             Tuple::color(0.2, 0.6, 0.1),
-        ));
+        );
+        pattern.transform = Matrix4::scaling(0.2, 0.2, 0.2);
+        right.material.pattern = Some(pattern);
         right.material.diffuse = 0.7;
         right.material.specular = 0.3;
         world.objects.push(right);
@@ -88,10 +95,12 @@ fn main() -> std::io::Result<()> {
         left.transform = Matrix4::translation(-1.5, 0.33, -0.75)
             * Matrix4::scaling(0.33, 0.33, 0.33);
         left.material = Material::default();
-        left.material.pattern = Some(Pattern::stripe(
+        let mut pattern = Pattern::stripe(
             Tuple::color(1.0, 0.8, 0.1),
             Tuple::color(0.6, 0.2, 0.2),
-        ));
+        );
+        pattern.transform = Matrix4::scaling(1.5, 0.5, 0.2);
+        left.material.pattern = Some(pattern);
         left.material.diffuse = 0.7;
         left.material.specular = 0.3;
         world.objects.push(left);

@@ -80,6 +80,7 @@ impl Intersection {
         let is_shadowed = world.is_shadowed(self.point.unwrap());
         lighting(
             self.object.material,
+            self.object,
             world.light_source.unwrap(),
             self.point.unwrap(),
             self.eyev.unwrap(),
