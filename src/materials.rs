@@ -1,4 +1,5 @@
 use super::float_eq;
+use patterns::Pattern;
 use tuples::Tuple;
 
 #[derive(Copy, Clone, Debug)]
@@ -8,6 +9,7 @@ pub struct Material {
     pub diffuse: f32,
     pub specular: f32,
     pub shininess: f32,
+    pub pattern: Option<Pattern>,
 }
 
 impl Material {
@@ -24,6 +26,7 @@ impl Material {
             diffuse,
             specular,
             shininess,
+            pattern: None,
         }
     }
 }
@@ -37,6 +40,7 @@ impl PartialEq for Material {
             && float_eq(self.diffuse, other.diffuse)
             && float_eq(self.specular, other.specular)
             && float_eq(self.shininess, other.shininess)
+            && self.pattern == other.pattern
     }
 }
 
@@ -48,6 +52,7 @@ impl Default for Material {
             diffuse: 0.9,
             specular: 0.9,
             shininess: 200.0,
+            pattern: None,
         }
     }
 }
@@ -60,4 +65,5 @@ fn test_the_default_material() {
     assert_eq!(m.diffuse, 0.9);
     assert_eq!(m.specular, 0.9);
     assert_eq!(m.shininess, 200.0);
+    assert_eq!(m.pattern, None);
 }

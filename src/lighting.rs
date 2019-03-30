@@ -36,7 +36,11 @@ pub fn lighting(
     let black = Tuple::color(0.0, 0.0, 0.0);
     let diffuse;
     let specular;
-    let effective_color = material.color * light.intensity;
+    let color = material
+        .pattern
+        .map(|pattern| pattern.stripe_at(point))
+        .unwrap_or(material.color);
+    let effective_color = color * light.intensity;
     let lightv = (light.position - point).normalize();
     let ambient = effective_color * material.ambient;
     let light_dot_normal = lightv.dot(normalv);
@@ -149,4 +153,31 @@ fn test_lighting_with_the_surface_in_shadow() {
     let in_shadow = true;
     let result = lighting(m, light, position, eyev, normalv, in_shadow);
     assert_eq!(result, Tuple::color(0.1, 0.1, 0.1));
+}
+
+#[test]
+fn test_lighting_with_a_pattern_applied() {
+    // FIXME: we can remove this when parent module imports this...
+    use patterns::Pattern;
+
+    let mut m = Material::default();
+    m.pattern = Some(Pattern::stripe(
+        Tuple::color(1.0, 1.0, 1.0),
+        Tuple::color(0.0, 0.0, 0.0),
+    ));
+    m.ambient = 1.0;
+    m.diffuse = 0.0;
+    m.specular = 0.0;
+    let eyev = Tuple::vector(0.0, 0.0, -1.0);
+    let normalv = Tuple::vector(0.0, 0.0, -1.0);
+    let light = PointLight::new(
+        Tuple::point(0.0, 0.0, -10.0),
+        Tuple::color(1.0, 1.0, 1.0),
+    );
+    let c1 =
+        lighting(m, light, Tuple::point(0.9, 0.0, 0.0), eyev, normalv, false);
+    let c2 =
+        lighting(m, light, Tuple::point(1.0, 0.0, 0.0), eyev, normalv, false);
+    assert_eq!(c1, Tuple::color(1.0, 1.0, 1.0));
+    assert_eq!(c2, Tuple::color(0.0, 0.0, 0.0));
 }
