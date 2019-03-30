@@ -4,6 +4,7 @@ use ray_tracer_challenge::camera::Camera;
 use ray_tracer_challenge::lighting::PointLight;
 use ray_tracer_challenge::materials::Material;
 use ray_tracer_challenge::matrices::Matrix4;
+use ray_tracer_challenge::patterns::Pattern;
 use ray_tracer_challenge::shapes::Sphere;
 use ray_tracer_challenge::transforms::view_transform;
 use ray_tracer_challenge::tuples::Tuple;
@@ -22,7 +23,10 @@ fn main() -> std::io::Result<()> {
     world.light_source = Some(light);
 
     let mut side_color = Material::default();
-    side_color.color = Tuple::color(1.0, 0.9, 0.9);
+    side_color.pattern = Some(Pattern::stripe(
+        Tuple::color(1.0, 0.9, 0.9),
+        Tuple::color(0.7, 0.6, 0.6),
+    ));
     side_color.specular = 0.0;
 
     {
@@ -56,7 +60,10 @@ fn main() -> std::io::Result<()> {
         let mut middle = Sphere::new();
         middle.transform = Matrix4::translation(-0.5, 1.0, 0.5);
         middle.material = Material::default();
-        middle.material.color = Tuple::color(0.1, 1.0, 0.5);
+        middle.material.pattern = Some(Pattern::stripe(
+            Tuple::color(0.1, 1.0, 0.5),
+            Tuple::color(0.3, 0.9, 0.7),
+        ));
         middle.material.diffuse = 0.7;
         middle.material.specular = 0.3;
         world.objects.push(middle);
@@ -67,7 +74,10 @@ fn main() -> std::io::Result<()> {
         right.transform = Matrix4::translation(1.5, 0.5, -0.5)
             * Matrix4::scaling(0.5, 0.5, 0.5);
         right.material = Material::default();
-        right.material.color = Tuple::color(0.5, 1.0, 0.1);
+        right.material.pattern = Some(Pattern::stripe(
+            Tuple::color(0.5, 1.0, 0.1),
+            Tuple::color(0.2, 0.6, 0.1),
+        ));
         right.material.diffuse = 0.7;
         right.material.specular = 0.3;
         world.objects.push(right);
@@ -78,7 +88,10 @@ fn main() -> std::io::Result<()> {
         left.transform = Matrix4::translation(-1.5, 0.33, -0.75)
             * Matrix4::scaling(0.33, 0.33, 0.33);
         left.material = Material::default();
-        left.material.color = Tuple::color(1.0, 0.8, 0.1);
+        left.material.pattern = Some(Pattern::stripe(
+            Tuple::color(1.0, 0.8, 0.1),
+            Tuple::color(0.6, 0.2, 0.2),
+        ));
         left.material.diffuse = 0.7;
         left.material.specular = 0.3;
         world.objects.push(left);
