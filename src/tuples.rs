@@ -2,7 +2,7 @@ use super::float_eq;
 use std::fmt;
 use std::ops;
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Default)]
 pub struct Tuple {
     pub x: f32,
     pub y: f32,

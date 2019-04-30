@@ -1,5 +1,5 @@
 use materials::Material;
-use patterns::stripe_at_object;
+use patterns::pattern_at_shape;
 use shapes::Shape;
 use tuples::Tuple;
 
@@ -41,7 +41,7 @@ pub fn lighting(
     let specular;
     let color = material
         .pattern
-        .map(|pattern| stripe_at_object(pattern, object, point))
+        .map(|pattern| pattern_at_shape(pattern, object, point))
         .unwrap_or(material.color);
     let effective_color = color * light.intensity;
     let lightv = (light.position - point).normalize();

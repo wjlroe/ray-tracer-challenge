@@ -2,7 +2,7 @@ use matrices::Matrix4;
 use shapes::Shape;
 use tuples::Tuple;
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, Default, PartialEq)]
 pub struct Pattern {
     pub a: Tuple,
     pub b: Tuple,
@@ -27,7 +27,7 @@ impl Pattern {
     }
 }
 
-pub fn stripe_at_object(
+pub fn pattern_at_shape(
     pattern: Pattern,
     object: Shape,
     point: Tuple,
@@ -40,7 +40,7 @@ pub fn stripe_at_object(
 #[cfg(test)]
 mod tests {
     use matrices::Matrix4;
-    use patterns::{stripe_at_object, Pattern};
+    use patterns::{pattern_at_shape, Pattern};
     use shapes::Shape;
     use tuples::Tuple;
 
@@ -92,7 +92,7 @@ mod tests {
         object.transform = Matrix4::scaling(2.0, 2.0, 2.0);
         let pattern = Pattern::stripe(white(), black());
         assert_eq!(
-            stripe_at_object(pattern, object, Tuple::point(1.5, 0.0, 0.0)),
+            pattern_at_shape(pattern, object, Tuple::point(1.5, 0.0, 0.0)),
             white()
         );
     }
@@ -103,7 +103,7 @@ mod tests {
         let mut pattern = Pattern::stripe(white(), black());
         pattern.transform = Matrix4::scaling(2.0, 2.0, 2.0);
         assert_eq!(
-            stripe_at_object(pattern, object, Tuple::point(1.5, 0.0, 0.0)),
+            pattern_at_shape(pattern, object, Tuple::point(1.5, 0.0, 0.0)),
             white()
         );
     }
@@ -115,8 +115,21 @@ mod tests {
         let mut pattern = Pattern::stripe(white(), black());
         pattern.transform = Matrix4::translation(0.5, 0.0, 0.0);
         assert_eq!(
-            stripe_at_object(pattern, object, Tuple::point(2.5, 0.0, 0.0)),
+            pattern_at_shape(pattern, object, Tuple::point(2.5, 0.0, 0.0)),
             white()
         );
+    }
+
+    #[test]
+    fn test_default_pattern_transform() {
+        let pattern = Pattern::default();
+        assert_eq!(Matrix4::default(), pattern.transform);
+    }
+
+    #[test]
+    fn test_assigning_a_transformation() {
+        let mut pattern = Pattern::default();
+        pattern.transform = Matrix4::translation(1.0, 2.0, 3.0);
+        assert_eq!(Matrix4::translation(1.0, 2.0, 3.0), pattern.transform);
     }
 }
