@@ -5,6 +5,7 @@ use tuples::Tuple;
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum PatternKind {
     Stripe(Tuple, Tuple),
+    Gradient(Tuple, Tuple),
     TestPattern,
 }
 
@@ -28,6 +29,13 @@ impl Pattern {
         }
     }
 
+    pub fn gradient(a: Tuple, b: Tuple) -> Self {
+        Self {
+            transform: Matrix4::default(),
+            kind: PatternKind::Gradient(a, b),
+        }
+    }
+
     fn color_at(&self, point: Tuple) -> Tuple {
         match self.kind {
             PatternKind::Stripe(a, b) => {
@@ -36,6 +44,9 @@ impl Pattern {
                 } else {
                     b
                 }
+            }
+            PatternKind::Gradient(a, b) => {
+                a + (b - a) * (point.x - point.x.floor())
             }
             PatternKind::TestPattern => Tuple::color(point.x, point.y, point.z),
         }
@@ -158,5 +169,23 @@ mod tests {
         let mut stripe = Pattern::default();
         stripe.transform = Matrix4::translation(1.0, 2.0, 3.0);
         assert_eq!(Matrix4::translation(1.0, 2.0, 3.0), stripe.transform);
+    }
+
+    #[test]
+    fn test_a_gradient_linearly_interpolates_between_colors() {
+        let pattern = Pattern::gradient(white(), black());
+        assert_eq!(white(), pattern.color_at(Tuple::point(0.0, 0.0, 0.0)));
+        assert_eq!(
+            Tuple::color(0.75, 0.75, 0.75),
+            pattern.color_at(Tuple::point(0.25, 0.0, 0.0))
+        );
+        assert_eq!(
+            Tuple::color(0.5, 0.5, 0.5),
+            pattern.color_at(Tuple::point(0.5, 0.0, 0.0))
+        );
+        assert_eq!(
+            Tuple::color(0.25, 0.25, 0.25),
+            pattern.color_at(Tuple::point(0.75, 0.0, 0.0))
+        );
     }
 }
