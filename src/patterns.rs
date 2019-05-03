@@ -7,6 +7,7 @@ pub enum PatternKind {
     Stripe(Tuple, Tuple),
     Gradient(Tuple, Tuple),
     Ring(Tuple, Tuple),
+    Checkers(Tuple, Tuple),
     TestPattern,
 }
 
@@ -44,6 +45,13 @@ impl Pattern {
         }
     }
 
+    pub fn checkers(a: Tuple, b: Tuple) -> Self {
+        Self {
+            transform: Matrix4::default(),
+            kind: PatternKind::Checkers(a, b),
+        }
+    }
+
     fn color_at(&self, point: Tuple) -> Tuple {
         match self.kind {
             PatternKind::Stripe(a, b) => {
@@ -58,6 +66,15 @@ impl Pattern {
             }
             PatternKind::Ring(a, b) => {
                 if (point.x.powf(2.0) + point.z.powf(2.0)).sqrt().floor() % 2.0
+                    == 0.0
+                {
+                    a
+                } else {
+                    b
+                }
+            }
+            PatternKind::Checkers(a, b) => {
+                if (point.x.floor() + point.y.floor() + point.z.floor()) % 2.0
                     == 0.0
                 {
                     a
@@ -213,5 +230,29 @@ mod tests {
         assert_eq!(black(), pattern.color_at(Tuple::point(1.0, 0.0, 0.0)));
         assert_eq!(black(), pattern.color_at(Tuple::point(0.0, 0.0, 1.0)));
         assert_eq!(black(), pattern.color_at(Tuple::point(0.708, 0.0, 0.708)));
+    }
+
+    #[test]
+    fn test_checkers_should_repeat_in_x() {
+        let pattern = Pattern::checkers(white(), black());
+        assert_eq!(white(), pattern.color_at(Tuple::point(0.0, 0.0, 0.0)));
+        assert_eq!(white(), pattern.color_at(Tuple::point(0.9, 0.0, 0.0)));
+        assert_eq!(black(), pattern.color_at(Tuple::point(1.01, 0.0, 0.0)));
+    }
+
+    #[test]
+    fn test_checkers_should_repeat_in_y() {
+        let pattern = Pattern::checkers(white(), black());
+        assert_eq!(white(), pattern.color_at(Tuple::point(0.0, 0.0, 0.0)));
+        assert_eq!(white(), pattern.color_at(Tuple::point(0.0, 0.99, 0.0)));
+        assert_eq!(black(), pattern.color_at(Tuple::point(0.0, 1.01, 0.0)));
+    }
+
+    #[test]
+    fn test_checkers_should_repeat_in_z() {
+        let pattern = Pattern::checkers(white(), black());
+        assert_eq!(white(), pattern.color_at(Tuple::point(0.0, 0.0, 0.0)));
+        assert_eq!(white(), pattern.color_at(Tuple::point(0.0, 0.0, 0.99)));
+        assert_eq!(black(), pattern.color_at(Tuple::point(0.0, 0.0, 1.01)));
     }
 }
