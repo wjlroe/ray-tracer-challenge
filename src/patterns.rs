@@ -6,6 +6,7 @@ use tuples::Tuple;
 pub enum PatternKind {
     Stripe(Tuple, Tuple),
     Gradient(Tuple, Tuple),
+    Ring(Tuple, Tuple),
     TestPattern,
 }
 
@@ -36,6 +37,13 @@ impl Pattern {
         }
     }
 
+    pub fn ring(a: Tuple, b: Tuple) -> Self {
+        Self {
+            transform: Matrix4::default(),
+            kind: PatternKind::Ring(a, b),
+        }
+    }
+
     fn color_at(&self, point: Tuple) -> Tuple {
         match self.kind {
             PatternKind::Stripe(a, b) => {
@@ -47,6 +55,15 @@ impl Pattern {
             }
             PatternKind::Gradient(a, b) => {
                 a + (b - a) * (point.x - point.x.floor())
+            }
+            PatternKind::Ring(a, b) => {
+                if (point.x.powf(2.0) + point.z.powf(2.0)).sqrt().floor() % 2.0
+                    == 0.0
+                {
+                    a
+                } else {
+                    b
+                }
             }
             PatternKind::TestPattern => Tuple::color(point.x, point.y, point.z),
         }
@@ -187,5 +204,14 @@ mod tests {
             Tuple::color(0.25, 0.25, 0.25),
             pattern.color_at(Tuple::point(0.75, 0.0, 0.0))
         );
+    }
+
+    #[test]
+    fn test_a_ring_should_extend_in_both_x_and_z() {
+        let pattern = Pattern::ring(white(), black());
+        assert_eq!(white(), pattern.color_at(Tuple::point(0.0, 0.0, 0.0)));
+        assert_eq!(black(), pattern.color_at(Tuple::point(1.0, 0.0, 0.0)));
+        assert_eq!(black(), pattern.color_at(Tuple::point(0.0, 0.0, 1.0)));
+        assert_eq!(black(), pattern.color_at(Tuple::point(0.708, 0.0, 0.708)));
     }
 }
