@@ -18,6 +18,10 @@ impl World {
         }
     }
 
+    pub fn add_shape(&mut self, shape: Shape) {
+        self.objects.push(shape);
+    }
+
     pub fn intersect_world(&self, ray: &Ray) -> Vec<Intersection> {
         let mut intersections = self
             .objects
@@ -28,11 +32,11 @@ impl World {
         intersections
     }
 
-    pub fn color_at(&self, ray: &Ray) -> Tuple {
+    pub fn color_at(&self, ray: &Ray, remaining: i32) -> Tuple {
         let xs = self.intersect_world(ray);
         if let Some(mut hit) = find_hit(&xs) {
             hit.prepare_hit(ray);
-            hit.shade_hit(self) // .normalize()
+            hit.shade_hit(self, remaining) // .normalize()
         } else {
             Tuple::color(0.0, 0.0, 0.0)
         }
@@ -54,6 +58,9 @@ impl World {
         }
     }
 }
+
+#[cfg(test)]
+use REFLECTION_RECURSION_LIMIT;
 
 #[test]
 fn test_creating_a_world() {
@@ -80,7 +87,7 @@ fn test_the_color_a_ray_misses() {
     let w = World::default();
     let ray =
         Ray::new(Tuple::point(0.0, 0.0, -5.0), Tuple::vector(0.0, 1.0, 0.0));
-    let c = w.color_at(&ray);
+    let c = w.color_at(&ray, REFLECTION_RECURSION_LIMIT);
     assert_eq!(c, Tuple::color(0.0, 0.0, 0.0));
 }
 
@@ -89,7 +96,7 @@ fn test_the_color_when_a_ray_hits() {
     let w = World::default();
     let ray =
         Ray::new(Tuple::point(0.0, 0.0, -5.0), Tuple::vector(0.0, 0.0, 1.0));
-    let c = w.color_at(&ray);
+    let c = w.color_at(&ray, REFLECTION_RECURSION_LIMIT);
     assert_eq!(c, Tuple::color(0.38066, 0.47583, 0.2855));
 }
 
@@ -101,8 +108,34 @@ fn test_the_color_with_an_intersection_behind_the_ray() {
     assert_eq!(world.objects[0].material.ambient, 1.0);
     let ray =
         Ray::new(Tuple::point(0.0, 0.0, 0.75), Tuple::vector(0.0, 0.0, -1.0));
-    let c = world.color_at(&ray);
+    let c = world.color_at(&ray, REFLECTION_RECURSION_LIMIT);
     assert_eq!(c, world.objects[1].material.color);
+}
+
+#[test]
+fn test_color_at_with_mutually_reflective_surfaces() {
+    use shapes::Plane;
+
+    let mut world = World::default();
+    world.light_source = Some(PointLight::new(
+        Tuple::point(0.0, 0.0, 0.0),
+        Tuple::color(1.0, 1.0, 1.0),
+    ));
+
+    let mut lower = Plane::new();
+    lower.material.reflective = 1.0;
+    lower.transform = Matrix4::translation(0.0, -1.0, 0.0);
+    world.add_shape(lower);
+
+    let mut upper = Plane::new();
+    upper.material.reflective = 1.0;
+    upper.transform = Matrix4::translation(0.0, 1.0, 0.0);
+    world.add_shape(upper);
+
+    let ray =
+        Ray::new(Tuple::point(0.0, 0.0, 0.0), Tuple::vector(0.0, 1.0, 0.0));
+    let _ = world.color_at(&ray, REFLECTION_RECURSION_LIMIT);
+    assert!(true); // We're testing color_at terminates and gets here
 }
 
 #[test]

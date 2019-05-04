@@ -11,7 +11,8 @@ pub mod transforms;
 pub mod tuples;
 pub mod world;
 
-const EPSILON: f32 = 0.00001;
+pub const EPSILON: f32 = 0.00001;
+pub const REFLECTION_RECURSION_LIMIT: i32 = 5;
 
 pub fn float_eq(left: f32, right: f32) -> bool {
     (left - right).abs() < EPSILON

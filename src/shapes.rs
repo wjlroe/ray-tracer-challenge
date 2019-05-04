@@ -153,7 +153,7 @@ fn test_a_sphere_has_a_default_material() {
 #[test]
 fn test_a_sphere_may_be_assigned_a_material() {
     let mut s = Sphere::new();
-    let m = Material::new(Tuple::color(2.0, 0.0, 5.0), 2.0, 3.0, 4.0, 5.0);
+    let m = Material::new(Tuple::color(2.0, 0.0, 5.0), 2.0, 3.0, 4.0, 5.0, 0.0);
     s.material = m;
     assert_eq!(s.material, m);
 }

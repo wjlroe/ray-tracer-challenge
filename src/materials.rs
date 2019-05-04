@@ -10,6 +10,7 @@ pub struct Material {
     pub specular: f32,
     pub shininess: f32,
     pub pattern: Option<Pattern>,
+    pub reflective: f32,
 }
 
 impl Material {
@@ -19,6 +20,7 @@ impl Material {
         diffuse: f32,
         specular: f32,
         shininess: f32,
+        reflective: f32,
     ) -> Self {
         Material {
             color,
@@ -27,6 +29,7 @@ impl Material {
             specular,
             shininess,
             pattern: None,
+            reflective,
         }
     }
 }
@@ -41,6 +44,7 @@ impl PartialEq for Material {
             && float_eq(self.specular, other.specular)
             && float_eq(self.shininess, other.shininess)
             && self.pattern == other.pattern
+            && float_eq(self.reflective, other.reflective)
     }
 }
 
@@ -53,6 +57,7 @@ impl Default for Material {
             specular: 0.9,
             shininess: 200.0,
             pattern: None,
+            reflective: 0.0,
         }
     }
 }
@@ -66,4 +71,5 @@ fn test_the_default_material() {
     assert_eq!(m.specular, 0.9);
     assert_eq!(m.shininess, 200.0);
     assert_eq!(m.pattern, None);
+    assert_eq!(m.reflective, 0.0);
 }

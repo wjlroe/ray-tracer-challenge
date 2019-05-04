@@ -1,3 +1,4 @@
+use super::REFLECTION_RECURSION_LIMIT;
 use canvas::Canvas;
 use matrices::Matrix4;
 use rays::Ray;
@@ -56,7 +57,7 @@ impl Camera {
         for y in 0..self.vsize {
             for x in 0..self.hsize {
                 let ray = self.ray_for_pixel(x, y);
-                let color = world.color_at(&ray);
+                let color = world.color_at(&ray, REFLECTION_RECURSION_LIMIT);
                 canvas.write_pixel(x, y, &color);
             }
         }
