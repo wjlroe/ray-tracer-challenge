@@ -23,20 +23,30 @@ fn main() -> std::io::Result<()> {
     world.light_source = Some(light);
 
     let mut side_color = Material::default();
-    let mut side_pattern = Pattern::stripe(
+    let mut side_pattern = Pattern::checkers(
         Tuple::color(1.0, 0.9, 0.9),
         Tuple::color(0.7, 0.6, 0.6),
     );
-    side_pattern.transform =
-        Matrix4::translation(0.2, 0.5, 1.5) * Matrix4::rotation_x(PI / 2.0);
+    side_pattern.transform = Matrix4::translation(0.00002, 0.00005, 1.5)
+        * Matrix4::rotation_x(PI / 2.0);
     side_color.pattern = Some(side_pattern);
     side_color.specular = 0.0;
 
     {
         let mut floor = Sphere::new();
         floor.transform = Matrix4::scaling(10.0, 0.01, 10.0);
-        floor.material = side_color;
-        world.objects.push(floor);
+        floor.material = Material::default();
+        floor.material.reflective = 0.2;
+        floor.material.specular = 0.0;
+        floor.material.diffuse = 0.2;
+        let mut floor_pattern = Pattern::checkers(
+            Tuple::color(0.0, 0.0, 0.0),
+            Tuple::color(1.0, 1.0, 1.0),
+        );
+        floor_pattern.transform = Matrix4::translation(0.0002, 0.0005, 0.0002)
+            * Matrix4::rotation_x(PI / 2.0);
+        floor.material.pattern = Some(floor_pattern);
+        world.add_shape(floor);
     }
 
     {
@@ -46,7 +56,7 @@ fn main() -> std::io::Result<()> {
             * Matrix4::rotation_x(PI / 2.0)
             * Matrix4::scaling(10.0, 0.01, 10.0);
         left_wall.material = side_color;
-        world.objects.push(left_wall);
+        world.add_shape(left_wall);
     }
 
     {
@@ -56,7 +66,7 @@ fn main() -> std::io::Result<()> {
             * Matrix4::rotation_x(PI / 2.0)
             * Matrix4::scaling(10.0, 0.01, 10.0);
         right_wall.material = side_color;
-        world.objects.push(right_wall);
+        world.add_shape(right_wall);
     }
 
     {
@@ -71,7 +81,8 @@ fn main() -> std::io::Result<()> {
         middle.material.pattern = Some(pattern);
         middle.material.diffuse = 0.7;
         middle.material.specular = 0.3;
-        world.objects.push(middle);
+        middle.material.reflective = 0.9;
+        world.add_shape(middle);
     }
 
     {
@@ -87,7 +98,7 @@ fn main() -> std::io::Result<()> {
         right.material.pattern = Some(pattern);
         right.material.diffuse = 0.7;
         right.material.specular = 0.3;
-        world.objects.push(right);
+        world.add_shape(right);
     }
 
     {
@@ -103,7 +114,7 @@ fn main() -> std::io::Result<()> {
         left.material.pattern = Some(pattern);
         left.material.diffuse = 0.7;
         left.material.specular = 0.3;
-        world.objects.push(left);
+        world.add_shape(left);
     }
 
     let mut camera = Camera::new(1000, 500, PI / 3.0);
